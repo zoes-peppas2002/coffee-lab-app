@@ -1,0 +1,111 @@
+const express = require('express');
+const router = express.Router();
+
+/**
+ * Consolidated login endpoint that checks database for all users
+ * Works with both MySQL (local) and PostgreSQL (production)
+ */
+router.post('/direct-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    console.log('=== DEBUG LOGIN START ===');
+    console.log('Direct login attempt:', email);
+    console.log('Request body:', JSON.stringify(req.body));
+    
+    // Special case for admin user (hardcoded fallback)
+    if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
+      console.log('Admin login successful (hardcoded)');
+      console.log('Using hardcoded admin credentials');
+      
+      // Return success with admin user data
+      const adminData = {
+        id: 1,
+        name: 'Admin',
+        email: 'zp@coffeelab.gr',
+        role: 'admin'
+      };
+      
+      console.log('Returning admin data:', JSON.stringify(adminData));
+      return res.status(200).json(adminData);
+    }
+    
+    // Determine if we're using PostgreSQL or MySQL
+    const isPg = process.env.NODE_ENV === 'production';
+    console.log(`Using ${isPg ? 'PostgreSQL' : 'MySQL'} for login query`);
+    console.log('Database connection status:', req.pool ? 'Connected' : 'Not connected');
+    
+    // Check database for users
+    try {
+      let rows;
+      
+      if (isPg) {
+        // PostgreSQL query
+        console.log('Executing PostgreSQL query');
+        const query = "SELECT * FROM users WHERE LOWER(TRIM(email)) = $1 AND password = $2";
+        console.log('Query:', query);
+        console.log('Parameters:', [email.trim().toLowerCase(), password]);
+        
+        const result = await req.pool.query(query, [email.trim().toLowerCase(), password]);
+        rows = result.rows;
+        console.log('PostgreSQL result:', JSON.stringify(rows));
+      } else {
+        // MySQL query
+        console.log('Executing MySQL query');
+        const query = "SELECT * FROM users WHERE LOWER(TRIM(email)) = ? AND password = ?";
+        console.log('Query:', query);
+        console.log('Parameters:', [email.trim().toLowerCase(), password]);
+        
+        const [result] = await req.pool.query(query, [email.trim().toLowerCase(), password]);
+        rows = result;
+        console.log('MySQL result:', JSON.stringify(rows));
+      }
+      
+      if (rows && rows.length > 0) {
+        const user = rows[0];
+        console.log('Login successful for:', user.name);
+        
+        const userData = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        };
+        
+        console.log('Returning user data:', JSON.stringify(userData));
+        return res.status(200).json(userData);
+      } else {
+        console.log('Login failed for:', email);
+        console.log('No matching user found in database');
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+    } catch (dbError) {
+      console.error('Database error during login:', dbError);
+      console.error('Error details:', dbError.message);
+      console.error('Error stack:', dbError.stack);
+      
+      // If database check fails, still allow admin login as a last resort
+      if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
+        console.log('Admin login successful (fallback after DB error)');
+        
+        return res.status(200).json({
+          id: 1,
+          name: 'Admin',
+          email: 'zp@coffeelab.gr',
+          role: 'admin'
+        });
+      }
+      
+      return res.status(500).json({ message: 'Database error during login' });
+    }
+    
+  } catch (error) {
+    console.error('Error in direct login:', error);
+    console.error('Error details:', error.message);
+    console.error('Error stack:', error.stack);
+    console.log('=== DEBUG LOGIN END ===');
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+module.exports = router;

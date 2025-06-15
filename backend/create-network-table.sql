@@ -1,0 +1,13 @@
+-- Create network_stores table
+CREATE TABLE IF NOT EXISTS `network_stores` (
+  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(255) NOT NULL,
+  `address` VARCHAR(255) NOT NULL,
+  `city` VARCHAR(100) NOT NULL,
+  `phone` VARCHAR(20),
+  `email` VARCHAR(255),
+  `manager_name` VARCHAR(255),
+  `active` TINYINT(1) DEFAULT 1,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
