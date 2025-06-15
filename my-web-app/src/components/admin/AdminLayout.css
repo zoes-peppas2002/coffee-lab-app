@@ -1,0 +1,118 @@
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+.admin-header {
+  background-color: #1e1e2f;
+  color: #fff;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+.admin-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px auto;
+  text-align: center;
+}
+
+.logout-button {
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.admin-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.admin-sidebar {
+  background-color: #f8f9fa;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-sidebar-nav {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-sidebar-item {
+  margin-bottom: 10px;
+}
+
+.admin-sidebar-link {
+  display: block;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.admin-sidebar-link:hover {
+  background-color: #0056b3;
+}
+
+.admin-sidebar-link.active {
+  background-color: #0056b3;
+}
+
+.admin-main {
+  flex: 1;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+/* Media queries για responsive design */
+@media (min-width: 768px) {
+  .admin-content {
+    flex-direction: row;
+  }
+  
+  .admin-sidebar {
+    width: 250px;
+    min-height: calc(100vh - 60px);
+  }
+  
+  .admin-main {
+    flex: 1;
+    padding: 30px;
+  }
+  
+  .admin-title {
+    font-size: 22px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .admin-sidebar {
+    width: 280px;
+  }
+  
+  .admin-main {
+    padding: 40px;
+  }
+  
+  .admin-title {
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,145 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+import LoginForm from './components/auth/LoginForm';
+import PrivateRoute from './components/auth/PrivateRoute';
+
+import AdminPage from './components/admin/AdminPage';
+import UserManagement from './components/admin/UserManagement';
+import NetworkManagement from './components/admin/NetworkManagement';
+
+import AdminViewChecklists from './components/admin/AdminViewChecklists';
+import TopStores from './components/admin/TopStores';
+import TopOfOurTeam from './components/admin/TopOfOurTeam';
+import Settings from './components/admin/Settings';
+import ChecklistTemplateManagement from './components/admin/ChecklistTemplateManagement';
+import CreateChecklistTemplate from './components/admin/CreateChecklistTemplate';
+import EditChecklistTemplate from './components/admin/EditChecklistTemplate';
+
+import AreaManagerDashboard from './components/areaManager/AreaManagerDashboard';
+import CreateChecklistForm from './components/areaManager/CreateChecklistForm';
+import ViewChecklists from './components/areaManager/ViewChecklists';
+
+import CoffeeSpecialistDashboard from './components/coffeeSpecialist/CoffeeSpecialistDashboard';
+import CoffeeSpecialistViewChecklists from './components/coffeeSpecialist/ViewChecklists';
+
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+
+        {/* Default redirect στο login */}
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LoginForm />} />
+
+        {/* Admin Routes */}
+        <Route path="/admin" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <AdminPage />
+          </PrivateRoute>
+        } />
+
+        <Route path="/admin/users" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <UserManagement />
+          </PrivateRoute>
+        } />
+
+        <Route path="/admin/network" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <NetworkManagement />
+          </PrivateRoute>
+        } />
+
+        <Route path="/admin/view-checklists" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <AdminViewChecklists />
+          </PrivateRoute>
+        } />
+
+        <Route path="/admin/top-stores" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <TopStores />
+          </PrivateRoute>
+        } />
+
+        <Route path="/admin/top-team" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <TopOfOurTeam />
+          </PrivateRoute>
+        } />
+
+        <Route path="/admin/settings" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <Settings />
+          </PrivateRoute>
+        } />
+
+        {/* Template Management Routes */}
+        <Route path="/admin/templates" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <ChecklistTemplateManagement />
+          </PrivateRoute>
+        } />
+
+        <Route path="/admin/templates/create" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <CreateChecklistTemplate />
+          </PrivateRoute>
+        } />
+
+        <Route path="/admin/templates/edit/:id" element={
+          <PrivateRoute allowedRoles={['admin']}>
+            <EditChecklistTemplate />
+          </PrivateRoute>
+        } />
+
+        {/* Area Manager Dashboard Route */}
+        <Route path="/area-manager" element={
+          <PrivateRoute allowedRoles={['area_manager']}>
+            <AreaManagerDashboard />
+          </PrivateRoute>
+        } />
+
+        <Route path="/area-manager/create" element={
+          <PrivateRoute allowedRoles={['area_manager']}>
+            <CreateChecklistForm />
+           </PrivateRoute>
+        } />
+
+        <Route path="/area-manager/view" element={
+          <PrivateRoute allowedRoles={['area_manager']}>
+            <ViewChecklists />
+           </PrivateRoute>
+        } />
+
+        {/* Coffee Specialist Routes */}
+        <Route path="/coffee-specialist" element={
+          <PrivateRoute allowedRoles={['coffee_specialist']}>
+            <CoffeeSpecialistDashboard />
+          </PrivateRoute>
+        } />
+
+        <Route path="/coffee-specialist/create" element={
+          <PrivateRoute allowedRoles={['coffee_specialist']}>
+            <CreateChecklistForm />
+           </PrivateRoute>
+        } />
+
+        <Route path="/coffee-specialist/view" element={
+          <PrivateRoute allowedRoles={['coffee_specialist']}>
+            <CoffeeSpecialistViewChecklists />
+           </PrivateRoute>
+        } />
+
+
+        {/* Default fallback */}
+        <Route path="*" element={<Navigate to="/login" />} />
+
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;

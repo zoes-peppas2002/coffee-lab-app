@@ -1,0 +1,123 @@
+.dashboard-wrapper {
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-header {
+  background-color: #1e1e2f;
+  color: #fff;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+.back-button {
+  background-color: #f8e18c;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.logout-button {
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.dashboard-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px auto;
+  text-align: center;
+}
+
+.button-container {
+  padding: 60px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  align-items: center;
+  justify-content: flex-start;
+  flex-grow: 1;
+  min-height: calc(100vh - 60px);
+}
+
+.dashboard-button {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 10px;
+  background-color: #007bff;
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  text-align: center;
+  margin: 0 auto;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-button:hover {
+  background-color: #0056b3;
+}
+
+/* Media queries για responsive design */
+@media (min-width: 768px) {
+  .dashboard-header {
+    padding: 15px 20px;
+  }
+  
+  .dashboard-title {
+    font-size: 22px;
+  }
+  
+  .button-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 80px 50px;
+  }
+  
+  .dashboard-button {
+    width: calc(50% - 30px);
+    margin: 15px;
+    padding: 15px 20px;
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .dashboard-header {
+    padding: 20px 30px;
+  }
+  
+  .dashboard-title {
+    font-size: 24px;
+  }
+  
+  .button-container {
+    padding: 100px 80px;
+  }
+  
+  .dashboard-button {
+    width: calc(33.33% - 40px);
+    margin: 20px;
+    max-width: 500px;
+  }
+}

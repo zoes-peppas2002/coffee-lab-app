@@ -1,0 +1,8 @@
+--READ ME TEXT FILE FOR CL CHECKLIST APP 
+
+ROOT ACCOUNT PASSWORD -->   CLchecklist2025! 
+
+In web app -->Name = Admin ,email zp@coffeelab. , password Zoespeppas2002! , roles=admin
+
+Για να τρέξω τον server τοπικά : npm run dev
+Για να τρέξω το frontend τοπικά : npm run dev
