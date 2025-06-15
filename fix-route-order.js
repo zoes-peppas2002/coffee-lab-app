@@ -17,7 +17,57 @@ async function fixRouteOrder(filePath) {
     
     console.log(`  Found routes in ${filePath}`);
     
-    // Check for route order issues
+    // Special case for templates.js which has a known issue
+    if (filePath.endsWith('templates.js')) {
+      console.log(`  🔍 Checking templates.js for specific issues...`);
+      
+      // Check for the problematic route pattern
+      const rootRoutePattern = 'router.get("/", async (req, res)';
+      const paramRoutePattern = 'router.get("/:id", async (req, res)';
+      
+      if (content.includes(rootRoutePattern) && content.includes(paramRoutePattern)) {
+        // Create a backup of the original file
+        const backupPath = `${filePath}.bak`;
+        fs.writeFileSync(backupPath, content);
+        console.log(`  Created backup at ${backupPath}`);
+        
+        // Extract the root route definition
+        const rootRouteStartIndex = content.indexOf(rootRoutePattern);
+        let rootRouteEndIndex = content.indexOf('});', rootRouteStartIndex);
+        rootRouteEndIndex = content.indexOf('\n', rootRouteEndIndex) + 1;
+        
+        // Extract the param route definition
+        const paramRouteStartIndex = content.indexOf(paramRoutePattern);
+        let paramRouteEndIndex = content.indexOf('});', paramRouteStartIndex);
+        paramRouteEndIndex = content.indexOf('\n', paramRouteEndIndex) + 1;
+        
+        // Check if root route is defined after param route
+        if (rootRouteStartIndex > paramRouteStartIndex) {
+          console.log(`  ⚠️ Route order issue detected in templates.js`);
+          console.log(`  Root route (/) is defined after parameter route (/:id)`);
+          
+          const rootRouteDefinition = content.substring(rootRouteStartIndex, rootRouteEndIndex);
+          
+          // Remove the root route from its current position
+          const contentWithoutRootRoute = 
+            content.substring(0, rootRouteStartIndex) + 
+            content.substring(rootRouteEndIndex);
+          
+          // Insert the root route before the param route
+          const fixedContent = 
+            contentWithoutRootRoute.substring(0, paramRouteStartIndex) + 
+            rootRouteDefinition + 
+            contentWithoutRootRoute.substring(paramRouteStartIndex);
+          
+          // Write the fixed content back to the file
+          fs.writeFileSync(filePath, fixedContent);
+          console.log(`  ✅ Fixed route order in templates.js`);
+          return true;
+        }
+      }
+    }
+    
+    // General case for all files
     const hasRootRoute = content.includes('router.get("/",');
     const hasParamRoute = content.includes('router.get("/:');
     

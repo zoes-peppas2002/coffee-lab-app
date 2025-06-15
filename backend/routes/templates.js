@@ -205,7 +205,7 @@ router.get("/latest", async (req, res) => {
   }
 });
 
-// Λήψη συγκεκριμένου template με ID
+// ΝΕΟ GET template βάσει ρόλου
 router.get("/", async (req, res) => {
   const pool = req.pool;
   const { role } = req.query;
@@ -218,6 +218,16 @@ router.get("/", async (req, res) => {
 
     if (rows.length === 0) {
       return res.status(404).json({ error: "Template not found for this role" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error("Error fetching template:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Λήψη συγκεκριμένου template με ID
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   
@@ -353,16 +363,6 @@ router.delete("/:id", async (req, res) => {
     console.error("SQL State:", err.sqlState);
     console.error("Error Number:", err.errno);
     res.status(500).json({ error: "Failed to delete template" });
-  }
-});
-
-// ΝΕΟ GET template βάσει ρόλου
-    }
-
-    res.json(rows[0]);
-  } catch (err) {
-    console.error("Error fetching template:", err);
-    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 

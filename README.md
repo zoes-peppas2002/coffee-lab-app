@@ -21,11 +21,17 @@ This application consists of:
 ### Setup
 
 1. Clone this repository
-2. Run the setup script:
+2. Use one of the batch files for easy setup:
+   ```
+   .\start-app.bat
+   ```
+   This will start both the backend and frontend servers in separate windows.
+
+3. Alternatively, you can run the setup script:
    ```
    node setup-and-run.js
    ```
-3. Choose option 1 for full setup (clean, install dependencies, initialize database, start application)
+   Choose option 1 for full setup (clean, install dependencies, initialize database, start application)
 
 ## Features
 
@@ -42,24 +48,47 @@ The application uses:
 - React with Vite for the frontend
 - Node.js with Express for the backend
 
+### Batch Files for Easy Development
+
+We've created several batch files to make development easier:
+
+- **start-backend.bat**: Starts only the backend server
+- **start-frontend.bat**: Starts only the frontend server
+- **start-app.bat**: Starts both backend and frontend servers in separate windows
+- **prepare-for-render-deploy.bat**: Prepares the application for deployment to Render
+- **deploy-to-render.bat**: Prepares and deploys the application to Render
+
+For a complete list of available batch files and their descriptions, see the `BATCH_FILES_README.md` file.
+
 ## Deployment
 
 ### Local Deployment
-For local deployment, use the setup script:
-```
-node setup-and-run.js
-```
+For local deployment, use one of these options:
+
+1. Run the start-app.bat file:
+   ```
+   .\start-app.bat
+   ```
+
+2. Or use the setup script:
+   ```
+   node setup-and-run.js
+   ```
 
 ### Production Deployment (Render.com)
 For production deployment to Render.com, you can now use the unified deployment approach:
 
-1. Build the unified application:
+1. Use the deploy-to-render.bat file:
+   ```
+   .\deploy-to-render.bat
+   ```
+   This will prepare the application for deployment and guide you through the process.
+
+2. Alternatively, build the unified application:
    ```
    node setup-and-run.js
    ```
    Then select option 6: "Build unified app for Render"
-
-2. This will prepare a single deployable package that includes both frontend and backend.
 
 3. See the `render-deployment-guide.md` for detailed instructions on deploying to Render.
 
@@ -75,7 +104,20 @@ If you encounter any issues:
 1. Check the console logs for errors
 2. Verify database connection settings
 3. Ensure all dependencies are installed
-4. See the troubleshooting section in the deployment guide
+4. Try running the fix-all-and-deploy.bat file to fix common issues:
+   ```
+   .\fix-all-and-deploy.bat
+   ```
+5. See the troubleshooting section in the deployment guide
+
+## Recent Fixes
+
+We've made several improvements to the application:
+
+1. **Fixed route order issues**: Corrected the order of routes in the templates.js file to prevent path-to-regexp errors
+2. **Improved deployment process**: Created new batch files for easier deployment to Render
+3. **Enhanced development workflow**: Added new batch files for starting the application locally
+4. **Fixed login issues**: Ensured the login form works correctly with both MySQL and PostgreSQL databases
 
 ## License
 
