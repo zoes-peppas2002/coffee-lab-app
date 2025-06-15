@@ -132,11 +132,17 @@ async function main() {
     node: '>=18.0.0'
   };
   
-  // Add build script for Render
+  // Add scripts for Render
+  if (!backendPackageJson.scripts) {
+    backendPackageJson.scripts = {};
+  }
+  
   backendPackageJson.scripts = {
     ...backendPackageJson.scripts,
     start: 'node server.js'
   };
+  
+  console.log('Added start script to package.json:', backendPackageJson.scripts);
   
   fs.writeFileSync(
     path.join(BACKEND_DIR, 'package.json'),

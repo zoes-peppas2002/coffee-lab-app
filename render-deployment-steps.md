@@ -9,6 +9,16 @@
 1. Κλείστε την εφαρμογή αν τρέχει (πατήστε Ctrl+C στο τερματικό)
 2. Κάντε διπλό κλικ στο αρχείο `prepare-for-render.bat`
 3. Περιμένετε να ολοκληρωθεί η διαδικασία build
+4. Βεβαιωθείτε ότι το αρχείο `backend/package.json` περιέχει το script "start":
+   - **Επιλογή 1**: Κάντε διπλό κλικ στο αρχείο `fix-package-json.bat` για αυτόματη διόρθωση
+   - **Επιλογή 2**: Ανοίξτε το αρχείο `backend/package.json` και ελέγξτε χειροκίνητα:
+     - Βεβαιωθείτε ότι υπάρχει η ενότητα "scripts" και περιέχει το "start": "node server.js"
+     - Αν δεν υπάρχει, προσθέστε το χειροκίνητα:
+     ```json
+     "scripts": {
+       "start": "node server.js"
+     }
+     ```
 
 ### Βήμα 2: Δημιουργία λογαριασμού στο Render
 
@@ -77,7 +87,7 @@ git push -u origin main
    - **Root Directory**: `backend`
    - **Runtime**: `Node`
    - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
+   - **Start Command**: `node server.js` (ΣΗΜΑΝΤΙΚΟ: Χρησιμοποιήστε αυτό αντί για `npm start`)
    - **Instance Type**: Αφήστε το προεπιλεγμένο "Free"
 
 7. Στην ενότητα "Environment Variables", κάντε κλικ στο "Add Environment Variable" και προσθέστε τις ακόλουθες μεταβλητές:
