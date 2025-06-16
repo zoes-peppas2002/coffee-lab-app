@@ -9,8 +9,8 @@ const path = require('path');
 // Set NODE_ENV to production
 process.env.NODE_ENV = 'production';
 
-// Set DATABASE_URL
-process.env.DATABASE_URL = 'postgresql://coffee_lab_user:JZBtkeHcgpITKIKBj6Dw7M4eAIMgh2r@dpg-d17fiiemcj7s73d4rhb0-a/coffee_lab_db_lyf9';
+// Set DATABASE_URL with external hostname
+process.env.DATABASE_URL = 'postgresql://coffee_lab_user:JZBtkeHcgpITKIKBj6Dw7M4eAIMgh2r@dpg-d17fiiemcj7s73d4rhb0-a.frankfurt-postgres.render.com/coffee_lab_db_lyf9';
 
 // Get the appropriate pool
 const pool = require('./db-pg');
@@ -23,6 +23,9 @@ async function testConnection() {
   
   try {
     console.log('Testing connection to the database...');
+    console.log('Using connection string with external hostname:');
+    console.log(process.env.DATABASE_URL);
+    
     const result = await pool.query('SELECT NOW()');
     console.log('✅ Connection successful!');
     console.log(`Current database time: ${result.rows[0].now}`);
