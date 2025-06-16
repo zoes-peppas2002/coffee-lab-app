@@ -350,6 +350,35 @@ process.on('uncaughtException', (err) => {
   }
 });
 
+
+// Add error handling for path-to-regexp errors
+process.on('uncaughtException', (err) => {
+  if (err.message && err.message.includes('Missing parameter name')) {
+    console.error('Path-to-regexp error detected. This is likely caused by an invalid route path.');
+    console.error('Error details:', err.message);
+    console.error('Stack trace:', err.stack);
+    
+    // Log all registered routes for debugging
+    console.log('Registered routes:');
+    app._router.stack.forEach(middleware => {
+      if (middleware.route) {
+        // Routes registered directly on the app
+        console.log(`- ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+      } else if (middleware.name === 'router') {
+        // Router middleware
+        middleware.handle.stack.forEach(handler => {
+          if (handler.route) {
+            console.log(`- ${Object.keys(handler.route.methods).join(', ').toUpperCase()} ${handler.route.path}`);
+          }
+        });
+      }
+    });
+  } else {
+    // For other uncaught exceptions, log and exit
+    console.error('Uncaught exception:', err);
+  }
+});
+
 app.listen(PORT, () => {
   const isDev = process.env.NODE_ENV === 'development';
   console.log(`🚀 Server running on ${isDev ? `http://localhost:${PORT}` : `port ${PORT}`}`);
