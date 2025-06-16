@@ -87,6 +87,33 @@ app.use((req, res, next) => {
   next();
 });
 
+// Debug route to test login - IMPORTANT: This must be defined BEFORE the API routes
+app.post("/test-login", (req, res) => {
+  console.log('=== TEST LOGIN ENDPOINT ===');
+  console.log('Request body:', JSON.stringify(req.body));
+  console.log('Headers:', JSON.stringify(req.headers));
+  
+  const { email, password } = req.body;
+  
+  // Special case for admin user (hardcoded fallback)
+  if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
+    console.log('Admin login successful (test endpoint)');
+    
+    // Return success with admin user data
+    const adminData = {
+      id: 1,
+      name: 'Admin',
+      email: 'zp@coffeelab.gr',
+      role: 'admin'
+    };
+    
+    console.log('Returning admin data:', JSON.stringify(adminData));
+    return res.status(200).json(adminData);
+  }
+  
+  return res.status(401).json({ message: 'Invalid credentials' });
+});
+
 // Routes
 app.use("/api/direct-auth", authRoutes); // Direct auth route first
 app.use("/api/auth", authRoutes); // Then regular auth route
@@ -97,10 +124,9 @@ app.use("/api/checklists", checklistRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/network", networkRoutes);
 
-
-// Debug route to test login
+// Also add the test-login endpoint with the /api prefix for compatibility
 app.post("/api/test-login", (req, res) => {
-  console.log('=== TEST LOGIN ENDPOINT ===');
+  console.log('=== API TEST LOGIN ENDPOINT ===');
   console.log('Request body:', JSON.stringify(req.body));
   console.log('Headers:', JSON.stringify(req.headers));
   
@@ -108,7 +134,7 @@ app.post("/api/test-login", (req, res) => {
   
   // Special case for admin user (hardcoded fallback)
   if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
-    console.log('Admin login successful (test endpoint)');
+    console.log('Admin login successful (API test endpoint)');
     
     // Return success with admin user data
     const adminData = {
