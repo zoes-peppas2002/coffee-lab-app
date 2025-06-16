@@ -151,33 +151,6 @@ app.post("/api/test-login", (req, res) => {
   return res.status(401).json({ message: 'Invalid credentials' });
 });
 
-// Also add the test-login endpoint with the /api prefix for compatibility
-app.post("/api/test-login", (req, res) => {
-  console.log('=== API TEST LOGIN ENDPOINT ===');
-  console.log('Request body:', JSON.stringify(req.body));
-  console.log('Headers:', JSON.stringify(req.headers));
-  
-  const { email, password } = req.body;
-  
-  // Special case for admin user (hardcoded fallback)
-  if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
-    console.log('Admin login successful (API test endpoint)');
-    
-    // Return success with admin user data
-    const adminData = {
-      id: 1,
-      name: 'Admin',
-      email: 'zp@coffeelab.gr',
-      role: 'admin'
-    };
-    
-    console.log('Returning admin data:', JSON.stringify(adminData));
-    return res.status(200).json(adminData);
-  }
-  
-  return res.status(401).json({ message: 'Invalid credentials' });
-});
-
 // Serve frontend static files in production
 if (process.env.NODE_ENV === 'production') {
   console.log('Serving frontend static files from:', FRONTEND_BUILD_PATH);
@@ -206,6 +179,35 @@ initDb().then(() => {
   console.log('Database initialized successfully');
 }).catch(err => {
   console.error('Failed to initialize database:', err);
+});
+
+
+// Add error handling for path-to-regexp errors
+process.on('uncaughtException', (err) => {
+  if (err.message && err.message.includes('Missing parameter name')) {
+    console.error('Path-to-regexp error detected. This is likely caused by an invalid route path.');
+    console.error('Error details:', err.message);
+    console.error('Stack trace:', err.stack);
+    
+    // Log all registered routes for debugging
+    console.log('Registered routes:');
+    app._router.stack.forEach(middleware => {
+      if (middleware.route) {
+        // Routes registered directly on the app
+        console.log(`- ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+      } else if (middleware.name === 'router') {
+        // Router middleware
+        middleware.handle.stack.forEach(handler => {
+          if (handler.route) {
+            console.log(`- ${Object.keys(handler.route.methods).join(', ').toUpperCase()} ${handler.route.path}`);
+          }
+        });
+      }
+    });
+  } else {
+    // For other uncaught exceptions, log and exit
+    console.error('Uncaught exception:', err);
+  }
 });
 
 app.listen(PORT, () => {
