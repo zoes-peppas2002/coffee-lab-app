@@ -7,6 +7,9 @@ const router = express.Router();
  */
 router.post('/direct-login', async (req, res) => {
   try {
+    // Determine if we're using PostgreSQL or MySQL
+    const isPg = process.env.NODE_ENV === 'production';
+    
     console.log('=== EXTENDED DEBUG LOGIN START ===');
     console.log('Request headers:', JSON.stringify(req.headers));
     console.log('Request body (full):', JSON.stringify(req.body));
@@ -37,9 +40,6 @@ router.post('/direct-login', async (req, res) => {
       console.log('Returning admin data:', JSON.stringify(adminData));
       return res.status(200).json(adminData);
     }
-    
-    // Determine if we're using PostgreSQL or MySQL
-    const isPg = process.env.NODE_ENV === 'production';
     console.log(`Using ${isPg ? 'PostgreSQL' : 'MySQL'} for login query`);
     console.log('Database connection status:', req.pool ? 'Connected' : 'Not connected');
     

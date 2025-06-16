@@ -32,7 +32,7 @@ function App() {
 
         {/* Default redirect στο login */}
         <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<FallbackLoginForm />} />} />
+        <Route path="/login" element={<FallbackLoginForm />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={

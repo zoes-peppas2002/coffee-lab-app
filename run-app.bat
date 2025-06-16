@@ -1,12 +1,25 @@
 @echo off
 echo ===================================
-echo COFFEE LAB - QUICK START
+echo COFFEE LAB - RUN APPLICATION
 echo ===================================
 echo.
-echo Starting backend and frontend servers...
+echo This script will run the application locally.
 echo.
-echo Press Ctrl+C to stop both servers
-echo.
+echo Press any key to continue...
+pause > nul
 
-cd /d "%~dp0"
-node setup-and-run.js 5
+echo.
+echo Starting backend server...
+start cmd /k "cd backend && npm start"
+
+echo.
+echo Waiting for backend to start...
+timeout /t 5 /nobreak > nul
+
+echo.
+echo Starting frontend...
+start cmd /k "cd my-web-app && npm run dev"
+
+echo.
+echo Application started. Press any key to exit...
+pause > nul

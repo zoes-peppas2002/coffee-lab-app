@@ -5,13 +5,21 @@ echo ===================================
 echo.
 echo This script will test the login functionality locally.
 echo.
-echo Make sure the backend server is running before running this script.
-echo.
 echo Press any key to continue...
 pause > nul
 
+echo.
+echo Starting backend server...
+start cmd /k "cd backend && npm start"
+
+echo.
+echo Waiting for backend to start...
+timeout /t 5 /nobreak > nul
+
+echo.
+echo Testing login...
 node test-login.js
 
 echo.
-echo Script completed. Press any key to exit...
+echo Test completed. Press any key to exit...
 pause > nul

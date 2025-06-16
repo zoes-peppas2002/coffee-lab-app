@@ -99,7 +99,7 @@ app.use("/api/network", networkRoutes);
 
 
 // Debug route to test login
-app.post("/test-login", (req, res) => {
+app.post("/api/test-login", (req, res) => {
   console.log('=== TEST LOGIN ENDPOINT ===');
   console.log('Request body:', JSON.stringify(req.body));
   console.log('Headers:', JSON.stringify(req.headers));

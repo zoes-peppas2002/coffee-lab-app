@@ -1,124 +1,119 @@
-# Coffee Lab Management System
+# Coffee Lab Web Application
 
-A comprehensive management system for Coffee Lab stores, featuring user management, checklist templates, and store performance tracking.
+A web application for managing coffee shop checklists and quality control.
 
 ## Overview
 
-This application consists of:
+The Coffee Lab web application is designed to help coffee shop managers and specialists manage quality control checklists for coffee shops. It includes features for creating and managing checklists, viewing statistics, and managing users and stores.
 
-1. **Backend**: Node.js server with Express
-2. **Frontend**: React application built with Vite
-3. **Database**: MySQL (local) and PostgreSQL (production)
+## Project Structure
 
-## Getting Started
+- **Backend**: Node.js server with Express.js
+  - Located in the `backend` directory
+  - Uses PostgreSQL for database storage
+  - Provides RESTful API endpoints for the frontend
 
-### Prerequisites
+- **Frontend**: React.js application
+  - Located in the `my-web-app` directory
+  - Built with Vite
+  - Uses React Router for navigation
+  - Uses Axios for API calls
 
-- Node.js (v14 or higher)
-- MySQL (for local development)
-- Git
+## Setup and Installation
 
-### Setup
+1. **Clone the repository**
 
-1. Clone this repository
-2. Use one of the batch files for easy setup:
+2. **Install dependencies**
    ```
-   .\start-app.bat
+   install-dependencies.bat
    ```
-   This will start both the backend and frontend servers in separate windows.
 
-3. Alternatively, you can run the setup script:
+3. **Initialize the database**
    ```
-   node setup-and-run.js
+   init-database.bat
    ```
-   Choose option 1 for full setup (clean, install dependencies, initialize database, start application)
 
-## Features
+4. **Set up the local environment**
+   ```
+   setup-local-environment.bat
+   ```
 
-- **User Management**: Admin, Area Manager, and Coffee Specialist roles
-- **Checklist Templates**: Create and manage store inspection templates
-- **Store Management**: Track store performance and compliance
-- **PDF Generation**: Generate PDF reports of completed checklists
-- **Statistics**: View performance metrics and trends
+## Running the Application
 
-## Local Development
+1. **Run the application locally**
+   ```
+   run-app.bat
+   ```
 
-The application uses:
-- MySQL for local development
-- React with Vite for the frontend
-- Node.js with Express for the backend
+2. **Run the fixed application locally**
+   ```
+   run-fixed-app.bat
+   ```
 
-### Batch Files for Easy Development
+## Testing
 
-We've created several batch files to make development easier:
+1. **Test the login functionality locally**
+   ```
+   test-login.bat
+   ```
 
-- **start-backend.bat**: Starts only the backend server
-- **start-frontend.bat**: Starts only the frontend server
-- **start-app.bat**: Starts both backend and frontend servers in separate windows
-- **prepare-for-render-deploy.bat**: Prepares the application for deployment to Render
-- **deploy-to-render.bat**: Prepares and deploys the application to Render
+2. **Test the login functionality on Render**
+   ```
+   test-render-login.bat
+   ```
 
-For a complete list of available batch files and their descriptions, see the `BATCH_FILES_README.md` file.
+3. **Run all tests**
+   ```
+   run-all-tests.bat
+   ```
 
 ## Deployment
 
-### Local Deployment
-For local deployment, use one of these options:
-
-1. Run the start-app.bat file:
+1. **Prepare for Render deployment**
    ```
-   .\start-app.bat
+   prepare-for-render-deploy.bat
    ```
 
-2. Or use the setup script:
+2. **Deploy to Render**
    ```
-   node setup-and-run.js
+   deploy-to-render.bat
    ```
 
-### Production Deployment (Render.com)
-For production deployment to Render.com, you can now use the unified deployment approach:
+3. **Fix issues and deploy in one go**
+   ```
+   fix-and-deploy-all.bat
+   ```
 
-1. Use the deploy-to-render.bat file:
-   ```
-   .\deploy-to-render.bat
-   ```
-   This will prepare the application for deployment and guide you through the process.
+## Documentation
 
-2. Alternatively, build the unified application:
-   ```
-   node setup-and-run.js
-   ```
-   Then select option 6: "Build unified app for Render"
+1. **CLEANUP_README.md**
+   - Documentation of the changes made and the steps to fix the login issues
 
-3. See the `render-deployment-guide.md` for detailed instructions on deploying to Render.
+2. **changes-summary.md**
+   - Summary of the changes made to fix the login issues
+
+3. **render-deployment-guide.md**
+   - Guide for deploying the application to Render
+
+4. **BATCH_FILES_README.md**
+   - Documentation of the batch files created
 
 ## Login Credentials
 
-Default admin user:
+For testing purposes, you can use the following hardcoded admin credentials:
+
 - Email: zp@coffeelab.gr
 - Password: Zoespeppas2025!
 
 ## Troubleshooting
 
 If you encounter any issues:
+
 1. Check the console logs for errors
-2. Verify database connection settings
-3. Ensure all dependencies are installed
-4. Try running the fix-all-and-deploy.bat file to fix common issues:
-   ```
-   .\fix-all-and-deploy.bat
-   ```
-5. See the troubleshooting section in the deployment guide
-
-## Recent Fixes
-
-We've made several improvements to the application:
-
-1. **Fixed route order issues**: Corrected the order of routes in the templates.js file to prevent path-to-regexp errors
-2. **Improved deployment process**: Created new batch files for easier deployment to Render
-3. **Enhanced development workflow**: Added new batch files for starting the application locally
-4. **Fixed login issues**: Ensured the login form works correctly with both MySQL and PostgreSQL databases
-
-## License
-
-Proprietary - Coffee Lab © 2025
+2. Ensure all dependencies are installed
+3. Verify that the database connection is working
+4. Check that the API endpoints are correctly configured
+5. Ensure that the frontend is correctly built and copied to the backend
+6. Verify that the .env files are correctly configured
+7. Check that the GitHub repository is correctly set up
+8. Verify that Render is correctly configured to deploy from GitHub

@@ -42,7 +42,7 @@ const FallbackLoginForm = () => {
       // Try the test-login endpoint first
       try {
         console.log("Trying test-login endpoint");
-        const testResponse = await axios.post("/test-login", loginData);
+        const testResponse = await axios.post(`${apiUrl}/test-login`, loginData);
         console.log("Test login successful:", testResponse.data);
         
         const user = testResponse.data;

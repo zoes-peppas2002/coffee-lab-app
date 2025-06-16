@@ -1,159 +1,93 @@
-# Αρχεία Batch για Εύκολη Χρήση
+# Coffee Lab Batch Files
 
-Αυτά τα αρχεία batch δημιουργήθηκαν για να διευκολύνουν τη χρήση της εφαρμογής Coffee Lab χωρίς να χρειάζεται να ανοίξετε το VS Code ή να εκτελέσετε εντολές στο τερματικό.
+This document outlines the batch files created to help manage the Coffee Lab web application.
 
-## Διαθέσιμα Αρχεία Batch
+## Setup and Installation
 
-### 1. run-app.bat
-Εκκινεί την εφαρμογή σε κατάσταση ανάπτυξης (development mode).
-- Ξεκινάει τον backend server στη θύρα 5000
-- Ξεκινάει τον frontend server στη θύρα 5173
-- Επισκεφθείτε το http://localhost:5173/ για να δείτε την εφαρμογή
+1. **install-dependencies.bat**
+   - Installs all dependencies for both the backend and frontend
+   - Usage: `install-dependencies.bat`
 
-### 2. test-unified-local.bat
-Δοκιμάζει την ενοποιημένη έκδοση της εφαρμογής τοπικά.
-- Κάνει build το frontend
-- Αντιγράφει τα αρχεία στον φάκελο backend/frontend-build
-- Ξεκινάει τον backend server σε κατάσταση παραγωγής (production mode)
-- Επισκεφθείτε το http://localhost:5000/ για να δείτε την εφαρμογή
+2. **init-database.bat**
+   - Initializes the database for the application
+   - Usage: `init-database.bat`
 
-### 3. prepare-for-render.bat
-Προετοιμάζει την εφαρμογή για ανάπτυξη στο Render.
-- Κάνει build το frontend
-- Αντιγράφει τα αρχεία στον φάκελο backend/frontend-build
-- Δημιουργεί τα απαραίτητα αρχεία περιβάλλοντος για παραγωγή
-- Προετοιμάζει το package.json του backend για το Render
+3. **setup-local-environment.bat**
+   - Sets up the local environment by installing dependencies, initializing the database, and running the application
+   - Usage: `setup-local-environment.bat`
 
-### 4. upload-to-github.bat
-Βοηθάει στο ανέβασμα του κώδικα στο GitHub.
-- Ζητάει το username σας στο GitHub
-- Ζητάει το όνομα του repository
-- Εκτελεί τις απαραίτητες εντολές git για να ανεβάσει τον κώδικα
+## Running the Application
 
-### 5. fix-package-json.bat
-Διορθώνει το αρχείο package.json του backend για το Render.
-- Προσθέτει το script "start": "node server.js" στο package.json
-- Προσθέτει την ενότητα "engines" για την έκδοση του Node.js
-- Χρήσιμο αν αντιμετωπίζετε προβλήματα με το "npm start" στο Render
+1. **run-app.bat**
+   - Runs the application locally
+   - Usage: `run-app.bat`
 
-### 6. push-and-deploy.bat
-Βοηθάει στο ανέβασμα των αλλαγών στο GitHub και την ανάπτυξη στο Render.
-- Προσθέτει όλα τα αρχεία στο Git
-- Δημιουργεί ένα νέο commit με το μήνυμα που θα δώσετε
-- Ανεβάζει τις αλλαγές στο GitHub
-- Παρέχει οδηγίες για την ενημέρωση του Render
+2. **run-fixed-app.bat**
+   - Runs the fixed application locally
+   - Usage: `run-fixed-app.bat`
 
-### 7. fix-git-structure.bat
-Διορθώνει τη δομή του Git repository.
-- Αφαιρεί το ένθετο `.git` directory από τον φάκελο `backend`
-- Προσθέτει όλα τα αρχεία στο κύριο repository
-- Δημιουργεί ένα νέο commit
-- Ανεβάζει τις αλλαγές στο GitHub
-- Χρήσιμο αν ο φάκελος `backend` δεν ανεβαίνει σωστά στο GitHub
+## Testing
 
-### 8. reset-github-repo.bat
-Επαναφέρει πλήρως τη δομή του GitHub repository.
-- Αφαιρεί το ένθετο `.git` directory από τον φάκελο `backend`
-- Αφαιρεί τον φάκελο `backend` από το GitHub repository
-- Προσθέτει τον φάκελο `backend` ξανά ως κανονικό φάκελο
-- Ανεβάζει τις αλλαγές στο GitHub
-- Χρήσιμο αν ο φάκελος `backend` εξακολουθεί να μην ανεβαίνει σωστά στο GitHub
+1. **test-login.bat**
+   - Tests the login functionality locally
+   - Usage: `test-login.bat`
 
-### 9. fix-route-order.bat
-Διορθώνει τη σειρά των routes στα αρχεία του backend.
-- Ελέγχει όλα τα αρχεία στον φάκελο `backend/routes`
-- Εντοπίζει και διορθώνει προβλήματα με τη σειρά των routes
-- Δημιουργεί αντίγραφα ασφαλείας των αρχείων που τροποποιεί
-- Χρήσιμο για την επίλυση σφαλμάτων path-to-regexp στο Render
+2. **test-render-login.bat**
+   - Tests the login functionality on Render
+   - Usage: `test-render-login.bat`
 
-### 10. fix-and-deploy.bat
-Διορθώνει τη σειρά των routes και αναπτύσσει την εφαρμογή.
-- Εκτελεί το fix-route-order.js για να διορθώσει τη σειρά των routes
-- Δοκιμάζει τον server τοπικά για να επιβεβαιώσει ότι λειτουργεί
-- Ανεβάζει τις αλλαγές στο GitHub
-- Παρέχει οδηγίες για την ανάπτυξη στο Render
-- Συνδυάζει τη διόρθωση και την ανάπτυξη σε ένα βήμα
+3. **run-all-tests.bat**
+   - Runs all tests
+   - Usage: `run-all-tests.bat`
 
-### 11. fix-templates-route.bat
-Διορθώνει τη σειρά των routes στο αρχείο templates.js.
-- Εκτελεί το fix-templates-route.js για να διορθώσει τη σειρά των routes στο templates.js
-- Δημιουργεί αντίγραφο ασφαλείας του αρχείου πριν τις αλλαγές
-- Εστιάζει στη διόρθωση του συγκεκριμένου αρχείου που προκαλεί το σφάλμα path-to-regexp
-- Χρήσιμο αν το πρόβλημα εντοπίζεται μόνο στο templates.js
+## Fixing Issues
 
-### 12. fix-all-and-deploy.bat
-Διορθώνει όλα τα προβλήματα και αναπτύσσει την εφαρμογή.
-- Εκτελεί το fix-templates-route.js για να διορθώσει το templates.js
-- Εκτελεί το fix-route-order.js για να διορθώσει όλα τα αρχεία routes
-- Δοκιμάζει τον server τοπικά για να επιβεβαιώσει ότι λειτουργεί
-- Ανεβάζει τις αλλαγές στο GitHub
-- Παρέχει οδηγίες για την ανάπτυξη στο Render
-- Συνδυάζει όλες τις διορθώσεις και την ανάπτυξη σε ένα βήμα
+1. **fix-login-issue.bat**
+   - Fixes the login issues by updating the necessary files
+   - Usage: `fix-login-issue.bat`
 
-### 13. start-backend.bat
-Εκκινεί μόνο τον backend server.
-- Ξεκινάει τον backend server στη θύρα 5000
-- Απλό και γρήγορο για δοκιμές του backend
-- Δεν απαιτεί αλληλεπίδραση με τον χρήστη
+## Deployment
 
-### 14. start-frontend.bat
-Εκκινεί μόνο τον frontend server.
-- Ξεκινάει τον frontend server στη θύρα 5173
-- Χρήσιμο για δοκιμές του frontend
-- Δεν απαιτεί αλληλεπίδραση με τον χρήστη
+1. **prepare-for-render-deploy.bat**
+   - Prepares the application for deployment to Render
+   - Usage: `prepare-for-render-deploy.bat`
 
-### 15. start-app.bat
-Εκκινεί και τον backend και τον frontend server σε ξεχωριστά παράθυρα.
-- Ξεκινάει τον backend server στη θύρα 5000
-- Ξεκινάει τον frontend server στη θύρα 5173
-- Ανοίγει δύο ξεχωριστά παράθυρα για καλύτερη παρακολούθηση
-- Δεν απαιτεί αλληλεπίδραση με τον χρήστη
+2. **deploy-to-render.bat**
+   - Deploys the application to Render
+   - Usage: `deploy-to-render.bat`
 
-### 16. prepare-for-render-deploy.bat
-Προετοιμάζει την εφαρμογή για ανάπτυξη στο Render.
-- Διορθώνει τη σειρά των routes στο templates.js
-- Διορθώνει τη σειρά των routes σε όλα τα αρχεία
-- Κάνει build το frontend
-- Αντιγράφει τα αρχεία στον φάκελο backend/frontend-build
-- Ενημερώνει το package.json για το Render
-- Συνδυάζει όλα τα βήματα προετοιμασίας σε ένα script
+3. **fix-and-deploy-all.bat**
+   - Fixes the login issues, prepares for Render deployment, and deploys to Render
+   - Usage: `fix-and-deploy-all.bat`
 
-### 17. deploy-to-render.bat
-Προετοιμάζει και αναπτύσσει την εφαρμογή στο Render.
-- Εκτελεί το prepare-for-render-deploy.bat
-- Ανεβάζει τις αλλαγές στο GitHub
-- Παρέχει οδηγίες για την ανάπτυξη στο Render
-- Συνδυάζει όλα τα βήματα σε ένα script
+## Documentation
 
-## Πώς να Χρησιμοποιήσετε τα Αρχεία Batch
+1. **CLEANUP_README.md**
+   - Documentation of the changes made and the steps to fix the login issues
 
-1. Απλά κάντε διπλό κλικ στο αρχείο batch που θέλετε να εκτελέσετε
-2. Ακολουθήστε τις οδηγίες που εμφανίζονται στο παράθυρο του τερματικού
-3. Για να σταματήσετε την εκτέλεση, πατήστε Ctrl+C στο παράθυρο του τερματικού
+2. **changes-summary.md**
+   - Summary of the changes made to fix the login issues
 
-## Στοιχεία Σύνδεσης
+3. **render-deployment-guide.md**
+   - Guide for deploying the application to Render
 
-Για να συνδεθείτε στην εφαρμογή, χρησιμοποιήστε τα παρακάτω στοιχεία:
+4. **BATCH_FILES_README.md**
+   - This file, documenting the batch files created
 
-- Email: zp@coffeelab.gr
-- Password: Zoespeppas2025!
+## Usage Flow
 
-## Οδηγοί και Τεκμηρίωση
+1. **Setup and Installation**
+   - Run `setup-local-environment.bat` to set up the local environment
 
-Έχουν δημιουργηθεί επίσης τα ακόλουθα αρχεία τεκμηρίωσης:
+2. **Fixing Issues**
+   - Run `fix-login-issue.bat` to fix the login issues
 
-### 1. render-deployment-steps.md
-Αναλυτικός οδηγός βήμα προς βήμα για την ανάπτυξη της εφαρμογής στο Render με το δωρεάν πλάνο.
+3. **Testing**
+   - Run `test-login.bat` to test the login functionality locally
+   - Run `test-render-login.bat` to test the login functionality on Render
+   - Run `run-all-tests.bat` to run all tests
 
-### 2. render-deployment-guide.md
-Γενικός οδηγός για την ανάπτυξη της εφαρμογής στο Render.
-
-### 3. unified-deployment-summary.md
-Περίληψη των αλλαγών που έγιναν για την ενοποιημένη ανάπτυξη.
-
-## Σημειώσεις
-
-- Τα αρχεία batch λειτουργούν μόνο σε Windows
-- Βεβαιωθείτε ότι έχετε εγκαταστήσει το Node.js στον υπολογιστή σας
-- Για το upload-to-github.bat, βεβαιωθείτε ότι έχετε εγκαταστήσει το Git
-- Αν αντιμετωπίζετε προβλήματα, δοκιμάστε να εκτελέσετε τα αρχεία batch ως διαχειριστής
+4. **Deployment**
+   - Run `prepare-for-render-deploy.bat` to prepare for deployment
+   - Run `deploy-to-render.bat` to deploy to Render
+   - Run `fix-and-deploy-all.bat` to fix issues and deploy in one go
