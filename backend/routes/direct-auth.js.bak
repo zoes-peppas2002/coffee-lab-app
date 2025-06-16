@@ -7,14 +7,6 @@ const router = express.Router();
  */
 router.post('/direct-login', async (req, res) => {
   try {
-    console.log('=== EXTENDED DEBUG LOGIN START ===');
-    console.log('Request headers:', JSON.stringify(req.headers));
-    console.log('Request body (full):', JSON.stringify(req.body));
-    console.log('Environment:', process.env.NODE_ENV);
-    console.log('API URL:', process.env.VITE_API_URL || 'Not set');
-    console.log('Database type:', isPg ? 'PostgreSQL' : 'MySQL');
-    console.log('=== EXTENDED DEBUG LOGIN DETAILS ===');
-
     const { email, password } = req.body;
     
     console.log('=== DEBUG LOGIN START ===');

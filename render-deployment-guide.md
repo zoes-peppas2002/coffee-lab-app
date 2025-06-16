@@ -1,107 +1,108 @@
-# Οδηγός Ανάπτυξης στο Render.com (Ενοποιημένη Έκδοση)
+# Coffee Lab - Render Deployment Guide
 
-Αυτός ο οδηγός θα σας βοηθήσει να αναπτύξετε την ενοποιημένη εφαρμογή Coffee Lab στο Render.com.
+This guide provides detailed instructions for deploying the Coffee Lab application to Render.
 
-## Προετοιμασία
+## Prerequisites
 
-Πριν ξεκινήσετε, βεβαιωθείτε ότι:
+Before you begin, make sure you have:
 
-1. Έχετε λογαριασμό στο [Render.com](https://render.com)
-2. Έχετε δημιουργήσει ένα repository στο GitHub με τον κώδικα της εφαρμογής
-3. Η εφαρμογή λειτουργεί σωστά τοπικά
+1. Fixed the login issues using the `fix-login-issue.bat` script
+2. Prepared the application for deployment using the `prepare-for-render-deploy.bat` script
+3. Uploaded the changes to GitHub using the `upload-to-github.bat` script
+4. Created a Render account at [render.com](https://render.com)
 
-## Βήμα 1: Δημιουργία της ενοποιημένης έκδοσης
+## Step 1: Create a PostgreSQL Database
 
-1. Τρέξτε το script `setup-and-run.js` και επιλέξτε την επιλογή 6 "Build unified app for Render"
-2. Το script θα:
-   - Δημιουργήσει τα απαραίτητα αρχεία περιβάλλοντος για παραγωγή
-   - Κάνει build το frontend
-   - Αντιγράψει τα αρχεία του frontend στον φάκελο `backend/frontend-build`
-   - Προετοιμάσει το `package.json` του backend για το Render
+1. Log in to your Render account
+2. Click on the "New +" button in the top right corner
+3. Select "PostgreSQL" from the dropdown menu
+4. Fill in the following details:
+   - **Name**: `coffee-lab-db` (or any name you prefer)
+   - **Database**: `coffee_lab_db`
+   - **User**: `coffee_lab_user`
+   - **Region**: Select the region closest to you (e.g., "Frankfurt EU Central")
+   - **PostgreSQL Version**: 14
+   - **Instance Type**: Free (or select a paid plan if you need more resources)
+5. Click on the "Create Database" button
+6. Wait for the database to be created (this may take a few minutes)
+7. Once created, click on the database to view its details
+8. Copy the **Internal Database URL** - you'll need this for the next step
 
-## Βήμα 2: Ρύθμιση της PostgreSQL βάσης δεδομένων
+## Step 2: Create a Web Service
 
-1. Συνδεθείτε στο Render.com
-2. Πηγαίνετε στο Dashboard και κάντε κλικ στο "New +"
-3. Επιλέξτε "PostgreSQL"
-4. Συμπληρώστε τα ακόλουθα στοιχεία:
-   - Name: `coffee-lab-db`
-   - Database: `coffee_lab_db`
-   - User: `coffee_lab_user`
-   - Region: Επιλέξτε την πλησιέστερη περιοχή (π.χ. Frankfurt)
-   - PostgreSQL Version: 14
-5. Κάντε κλικ στο "Create Database"
-6. Περιμένετε μέχρι να δημιουργηθεί η βάση δεδομένων (θα πάρει λίγα λεπτά)
-7. Αφού δημιουργηθεί, σημειώστε τις ακόλουθες πληροφορίες:
-   - Internal Database URL
-   - PSQL Command
-
-## Βήμα 3: Ανάπτυξη της ενοποιημένης εφαρμογής
-
-1. Στο Dashboard του Render, κάντε κλικ στο "New +" και επιλέξτε "Web Service"
-2. Συνδέστε το GitHub repository σας
-3. Συμπληρώστε τα ακόλουθα στοιχεία:
-   - Name: `coffee-lab-app`
-   - Region: Επιλέξτε την ίδια περιοχή με τη βάση δεδομένων
-   - Branch: `main` (ή όποιο branch χρησιμοποιείτε)
-   - Root Directory: `backend`
-   - Runtime: `Node`
-   - Build Command: `npm install`
-   - Start Command: `npm start`
-4. Στην ενότητα "Environment Variables", προσθέστε τις ακόλουθες μεταβλητές:
+1. Click on the "New +" button in the top right corner
+2. Select "Web Service" from the dropdown menu
+3. Click on "Build and deploy from a Git repository"
+4. Connect your GitHub account if you haven't already
+5. Select the repository where you uploaded the Coffee Lab application
+6. Fill in the following details:
+   - **Name**: `coffee-lab-app` (or any name you prefer)
+   - **Region**: Select the same region as your database
+   - **Branch**: `main` (or the branch you pushed to)
+   - **Root Directory**: `backend`
+   - **Runtime**: `Node`
+   - **Build Command**: `npm install`
+   - **Start Command**: `node server.js`
+   - **Instance Type**: Free (or select a paid plan if you need more resources)
+7. In the "Environment Variables" section, click on "Add Environment Variable" and add the following:
    - `NODE_ENV`: `production`
    - `PORT`: `10000`
-   - `DATABASE_URL`: (Χρησιμοποιήστε το Internal Database URL από το βήμα 2)
-5. Κάντε κλικ στο "Create Web Service"
+   - `DATABASE_URL`: Paste the Internal Database URL you copied in Step 1
 
-## Βήμα 4: Αρχικοποίηση της βάσης δεδομένων
+8. Click on the "Create Web Service" button
 
-Για να αρχικοποιήσετε τη βάση δεδομένων στο Render, θα χρειαστεί να εκτελέσετε τα SQL scripts μέσω του PSQL Command:
+## Step 3: Monitor the Deployment
 
-1. Συνδεθείτε στη βάση δεδομένων χρησιμοποιώντας το PSQL Command που σας παρέχεται από το Render
-2. Εκτελέστε τα ακόλουθα SQL scripts:
-   - `create-users-table.sql`
-   - `create-default-admin.sql`
-   - `create-network-table.sql`
+1. You'll be redirected to the web service dashboard
+2. Click on the "Logs" tab to monitor the deployment process
+3. Wait for the deployment to complete (this may take a few minutes)
+4. Once the deployment is complete, you'll see a message indicating that the server is running
 
-Εναλλακτικά, η βάση δεδομένων θα αρχικοποιηθεί αυτόματα κατά την πρώτη εκκίνηση του server, καθώς το `init-db.js` εκτελείται κατά την εκκίνηση.
+## Step 4: Test the Application
 
-## Βήμα 5: Έλεγχος της εφαρμογής
-
-1. Περιμένετε μέχρι να ολοκληρωθεί η ανάπτυξη της εφαρμογής
-2. Επισκεφθείτε το URL της εφαρμογής: `https://coffee-lab-app.onrender.com`
-3. Συνδεθείτε με τα διαπιστευτήρια του admin:
+1. Click on the URL provided by Render (e.g., `https://coffee-lab-app.onrender.com`)
+2. You should see the login page
+3. Log in with the following credentials:
    - Email: `zp@coffeelab.gr`
    - Password: `Zoespeppas2025!`
+4. If the login is successful, you should be redirected to the admin dashboard
 
-## Αντιμετώπιση προβλημάτων
+## Troubleshooting
 
-### Πρόβλημα: Δεν μπορώ να συνδεθώ
+If you encounter any issues during the deployment process, check the following:
 
-1. Ελέγξτε τα logs της εφαρμογής στο Render για τυχόν σφάλματα
-2. Βεβαιωθείτε ότι η βάση δεδομένων έχει αρχικοποιηθεί σωστά
-3. Ελέγξτε ότι η μεταβλητή `DATABASE_URL` είναι σωστά ρυθμισμένη
+### Login Issues
 
-### Πρόβλημα: Η εφαρμογή φορτώνει αλλά δεν μπορώ να δω τα δεδομένα
+If you're still experiencing login issues:
 
-1. Ελέγξτε τα logs της εφαρμογής για σφάλματα σύνδεσης με τη βάση δεδομένων
-2. Βεβαιωθείτε ότι η βάση δεδομένων είναι προσβάσιμη από την εφαρμογή
-3. Ελέγξτε ότι τα API endpoints λειτουργούν σωστά
+1. Check the logs in the Render dashboard for any error messages
+2. Make sure the `DATABASE_URL` environment variable is set correctly
+3. Try using the fallback login component by clicking the "Admin Login" button
 
-## Σημειώσεις
+### Database Issues
 
-- Το Render.com προσφέρει δωρεάν tier για όλες τις υπηρεσίες, αλλά με περιορισμούς:
-  - Οι δωρεάν web services τερματίζονται μετά από 15 λεπτά αδράνειας
-  - Οι δωρεάν βάσεις δεδομένων έχουν περιορισμένο χώρο αποθήκευσης
-  - Τα δεδομένα στις δωρεάν βάσεις δεδομένων διατηρούνται για 90 ημέρες
-- Για παραγωγικό περιβάλλον, συνιστάται η αναβάθμιση σε πληρωμένο πλάνο:
-  - Οι πληρωμένες υπηρεσίες λειτουργούν συνεχώς χωρίς διακοπές
-  - Τα δεδομένα διατηρούνται μόνιμα
-  - Παρέχονται αυτόματα backups
+If you're having issues with the database:
 
-## Χρήσιμοι σύνδεσμοι
+1. Make sure the database is running (check the status in the Render dashboard)
+2. Verify that the `DATABASE_URL` environment variable is set correctly
+3. Check if the database tables have been created (you can use the Render dashboard to connect to the database and run SQL queries)
 
-- [Render Dashboard](https://dashboard.render.com/)
-- [Render Docs: PostgreSQL](https://render.com/docs/databases)
-- [Render Docs: Web Services](https://render.com/docs/web-services)
-- [Render Docs: Environment Variables](https://render.com/docs/environment-variables)
+### Deployment Issues
+
+If the deployment fails:
+
+1. Check the logs in the Render dashboard for any error messages
+2. Make sure the `package.json` file has the correct start script
+3. Verify that the root directory is set to `backend`
+4. Make sure the Node.js version is compatible (Render uses Node.js 14 by default)
+
+## Next Steps
+
+Once the application is deployed and working correctly, you may want to:
+
+1. Add custom domain (if you have a paid plan)
+2. Set up automatic deployments from GitHub
+3. Configure SSL certificates (Render provides free SSL certificates)
+4. Set up monitoring and alerts
+
+For more information, refer to the [Render documentation](https://render.com/docs).

@@ -32,15 +32,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Middleware
-
-// Add CORS debugging middleware
-app.use((req, res, next) => {
-  console.log('CORS origin:', req.headers.origin);
-  console.log('CORS method:', req.method);
-  console.log('CORS headers:', JSON.stringify(req.headers));
-  next();
-});
-
 app.use(cors({
   origin: [process.env.FRONTEND_URL, 'http://localhost:5173', 'http://172.20.10.4:5173'],
   credentials: false, // Changed to false to match API settings
@@ -88,42 +79,14 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use("/api/direct-auth", authRoutes); // Direct auth route first
-app.use("/api/auth", authRoutes); // Then regular auth route
+app.use("/api/auth", authRoutes); // Using consolidated auth route
+app.use("/api/direct-auth", authRoutes); // Keep both paths for backward compatibility
 app.use("/api/users", usersRoutes);
 app.use("/api/stores", storeRoutes);
 app.use("/api/templates", templatesRoutes);
 app.use("/api/checklists", checklistRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/network", networkRoutes);
-
-
-// Debug route to test login
-app.post("/test-login", (req, res) => {
-  console.log('=== TEST LOGIN ENDPOINT ===');
-  console.log('Request body:', JSON.stringify(req.body));
-  console.log('Headers:', JSON.stringify(req.headers));
-  
-  const { email, password } = req.body;
-  
-  // Special case for admin user (hardcoded fallback)
-  if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
-    console.log('Admin login successful (test endpoint)');
-    
-    // Return success with admin user data
-    const adminData = {
-      id: 1,
-      name: 'Admin',
-      email: 'zp@coffeelab.gr',
-      role: 'admin'
-    };
-    
-    console.log('Returning admin data:', JSON.stringify(adminData));
-    return res.status(200).json(adminData);
-  }
-  
-  return res.status(401).json({ message: 'Invalid credentials' });
-});
 
 // Serve frontend static files in production
 if (process.env.NODE_ENV === 'production') {

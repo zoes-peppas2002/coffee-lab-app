@@ -24,7 +24,6 @@ import CoffeeSpecialistDashboard from './components/coffeeSpecialist/CoffeeSpeci
 import CoffeeSpecialistViewChecklists from './components/coffeeSpecialist/ViewChecklists';
 
 
-import FallbackLoginForm from './components/auth/FallbackLoginForm';
 function App() {
   return (
     <Router>
@@ -32,7 +31,7 @@ function App() {
 
         {/* Default redirect στο login */}
         <Route path="/" element={<Navigate to="/login" />} />
-        <Route path="/login" element={<FallbackLoginForm />} />} />
+        <Route path="/login" element={<LoginForm />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={

@@ -3,39 +3,24 @@ echo ===================================
 echo COFFEE LAB - DEPLOY TO RENDER
 echo ===================================
 echo.
-echo This script will:
-echo 1. Prepare the application for Render deployment
-echo 2. Push the changes to GitHub
-echo 3. Guide you through deploying to Render
+echo This script will guide you through the process of deploying the application to Render.
+echo.
+echo Before proceeding, make sure you have:
+echo 1. Fixed the login issues using fix-login-issue.bat
+echo 2. Prepared the application for deployment using prepare-for-render-deploy.bat
+echo 3. Pushed the changes to GitHub using upload-to-github.bat
 echo.
 echo Press any key to continue...
 pause > nul
 
 echo.
-echo Step 1: Preparing for Render deployment...
-call prepare-for-render-deploy.bat
+echo Opening the Render deployment guide...
+start render-deployment-steps.md
 
 echo.
-echo Step 2: Pushing changes to GitHub...
-git add .
-set /p commit_message=Enter commit message (e.g., "Fix route order issues and prepare for Render deployment"): 
-git commit -m "%commit_message%"
-git push
-
+echo Please follow the instructions in the deployment guide to deploy the application to Render.
 echo.
-echo Step 3: Deploying to Render...
+echo After deploying, you can test the application by opening the URL provided by Render.
 echo.
-echo Please follow these steps to deploy to Render:
-echo 1. Go to your Render dashboard: https://dashboard.render.com
-echo 2. Select your web service
-echo 3. Go to "Manual Deploy" and select "Clear build cache & deploy"
-echo 4. Wait for the deployment to complete
-echo.
-echo ===================================
-echo Process completed!
-echo.
-echo Your changes have been pushed to GitHub.
-echo Don't forget to manually deploy on Render.
-echo ===================================
-echo.
-pause
+echo Press any key to exit...
+pause > nul
