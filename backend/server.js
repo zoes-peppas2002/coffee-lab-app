@@ -50,6 +50,18 @@ app.use(cors({
 app.use(express.json());
 
 
+// Middleware to catch and fix URLs in request paths
+app.use((req, res, next) => {
+  // Check if the request path contains a URL
+  if (req.path.includes('https://') || req.path.includes('http://') || req.path.includes('git.new/')) {
+    console.error('Invalid URL in request path:', req.path);
+    return res.status(400).json({ error: 'Invalid URL in request path' });
+  }
+  next();
+});
+
+
+
 // Middleware to catch and fix invalid route paths
 app.use((req, res, next) => {
   // Check if the request URL contains 'https://' or 'http://' in the path
