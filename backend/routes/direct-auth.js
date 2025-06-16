@@ -6,6 +6,8 @@ const router = express.Router();
  * Works with both MySQL (local) and PostgreSQL (production)
  */
 router.post('/direct-login', async (req, res) => {
+  // Determine if we're using PostgreSQL or MySQL
+  const isPg = process.env.NODE_ENV === 'production';
   try {
     // Determine if we're using PostgreSQL or MySQL
     const isPg = process.env.NODE_ENV === 'production';

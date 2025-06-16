@@ -151,6 +151,33 @@ app.post("/api/test-login", (req, res) => {
   return res.status(401).json({ message: 'Invalid credentials' });
 });
 
+// Also add the test-login endpoint with the /api prefix for compatibility
+app.post("/api/test-login", (req, res) => {
+  console.log('=== API TEST LOGIN ENDPOINT ===');
+  console.log('Request body:', JSON.stringify(req.body));
+  console.log('Headers:', JSON.stringify(req.headers));
+  
+  const { email, password } = req.body;
+  
+  // Special case for admin user (hardcoded fallback)
+  if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
+    console.log('Admin login successful (API test endpoint)');
+    
+    // Return success with admin user data
+    const adminData = {
+      id: 1,
+      name: 'Admin',
+      email: 'zp@coffeelab.gr',
+      role: 'admin'
+    };
+    
+    console.log('Returning admin data:', JSON.stringify(adminData));
+    return res.status(200).json(adminData);
+  }
+  
+  return res.status(401).json({ message: 'Invalid credentials' });
+});
+
 // Serve frontend static files in production
 if (process.env.NODE_ENV === 'production') {
   console.log('Serving frontend static files from:', FRONTEND_BUILD_PATH);
