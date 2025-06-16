@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS `network_stores` (
   `phone` VARCHAR(20),
   `email` VARCHAR(255),
   `manager_name` VARCHAR(255),
-  `active` TINYINT(1) DEFAULT 1,
+  `active` TINYINT(1) DEFAULT true,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
