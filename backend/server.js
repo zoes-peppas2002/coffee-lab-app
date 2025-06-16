@@ -49,6 +49,18 @@ app.use(cors({
 }));
 app.use(express.json());
 
+
+// Middleware to catch and fix invalid route paths
+app.use((req, res, next) => {
+  // Check if the request URL contains 'https://' or 'http://' in the path
+  if (req.path.includes('https://') || req.path.includes('http://')) {
+    console.error('Invalid route path detected:', req.path);
+    return res.status(400).json({ error: 'Invalid route path' });
+  }
+  next();
+});
+
+
 // Serve static files
 app.use('/static', express.static(path.join(__dirname, 'static'), {
   setHeaders: (res, path) => {
@@ -179,35 +191,6 @@ initDb().then(() => {
   console.log('Database initialized successfully');
 }).catch(err => {
   console.error('Failed to initialize database:', err);
-});
-
-
-// Add error handling for path-to-regexp errors
-process.on('uncaughtException', (err) => {
-  if (err.message && err.message.includes('Missing parameter name')) {
-    console.error('Path-to-regexp error detected. This is likely caused by an invalid route path.');
-    console.error('Error details:', err.message);
-    console.error('Stack trace:', err.stack);
-    
-    // Log all registered routes for debugging
-    console.log('Registered routes:');
-    app._router.stack.forEach(middleware => {
-      if (middleware.route) {
-        // Routes registered directly on the app
-        console.log(`- ${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
-      } else if (middleware.name === 'router') {
-        // Router middleware
-        middleware.handle.stack.forEach(handler => {
-          if (handler.route) {
-            console.log(`- ${Object.keys(handler.route.methods).join(', ').toUpperCase()} ${handler.route.path}`);
-          }
-        });
-      }
-    });
-  } else {
-    // For other uncaught exceptions, log and exit
-    console.error('Uncaught exception:', err);
-  }
 });
 
 
