@@ -238,4 +238,110 @@ async function ensureTablesExist(pool) {
 }
 
 
+
+// Function to execute SQL file
+async function executeSqlFile(pool, filePath) {
+  try {
+    const sql = fs.readFileSync(filePath, 'utf8');
+    
+    // For PostgreSQL, we need to convert MySQL syntax to PostgreSQL
+    let convertedSql = sql;
+    if (process.env.NODE_ENV === 'production') {
+      // Convert MySQL syntax to PostgreSQL
+      convertedSql = sql
+        .replace(/AUTO_INCREMENT/g, 'SERIAL')
+        .replace(/INT/g, 'INTEGER')
+        .replace(/DATETIME/g, 'TIMESTAMP')
+        .replace(/DEFAULT CURRENT_TIMESTAMP/g, 'DEFAULT CURRENT_TIMESTAMP')
+        .replace(/DEFAULT 1/g, 'DEFAULT true')
+        .replace(/DEFAULT 0/g, 'DEFAULT false');
+      
+      console.log('Converted SQL command:', convertedSql);
+    }
+    
+    await pool.query(convertedSql);
+    return true;
+  } catch (err) {
+    console.error(`Error executing SQL file ${filePath}:`, err);
+    return false;
+  }
+}
+
+// Ensure all tables exist
+async function ensureTablesExist(pool) {
+  console.log('Ensuring all tables exist...');
+  
+  // Create users table
+  console.log('Creating users table...');
+  const usersTableCreated = await executeSqlFile(
+    pool, 
+    path.join(__dirname, 'create-users-table.sql')
+  );
+  
+  if (!usersTableCreated) {
+    console.error('Error creating users table');
+  }
+  
+  // Create network_stores table
+  console.log('Creating network_stores table...');
+  const networkTableCreated = await executeSqlFile(
+    pool, 
+    path.join(__dirname, 'create-network-table.sql')
+  );
+  
+  if (!networkTableCreated) {
+    console.error('Error creating network table');
+  }
+  
+  // Create checklist_templates table
+  console.log('Creating checklist_templates table...');
+  const checklistTemplatesCreated = await executeSqlFile(
+    pool, 
+    path.join(__dirname, 'create-checklist-templates.sql')
+  );
+  
+  if (!checklistTemplatesCreated) {
+    console.error('Error creating checklist_templates table');
+  }
+  
+  // Create checklists table
+  console.log('Creating checklists table...');
+  const checklistsCreated = await executeSqlFile(
+    pool, 
+    path.join(__dirname, 'create-checklists.sql')
+  );
+  
+  if (!checklistsCreated) {
+    console.error('Error creating checklists table');
+  }
+  
+  // Create default admin user
+  try {
+    console.log('Creating default admin user...');
+    const adminSql = fs.readFileSync(
+      path.join(__dirname, 'create-default-admin.sql'), 
+      'utf8'
+    );
+    
+    await pool.query(adminSql);
+    console.log('Default admin user created successfully');
+  } catch (err) {
+    console.error('Error creating admin user:', err.message);
+  }
+}
+
+// Verify database connection
+async function verifyDatabaseConnection(pool) {
+  try {
+    console.log('Verifying database connection...');
+    await pool.query('SELECT 1');
+    console.log('✅ Database connection verified successfully.');
+    return true;
+  } catch (err) {
+    console.error('❌ Database connection failed:', err.message);
+    return false;
+  }
+}
+
+
 module.exports = initDb;

@@ -1,22 +1,13 @@
 const { Pool } = require('pg');
-require('dotenv').config();
 
-// Create a PostgreSQL connection pool
+// Get the DATABASE_URL from environment variables
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://coffee_lab_user:JZBtkeHcgpITKIKBj6Dw7M4eAIMgh2r@dpg-d17fiiemcj7s73d4rhb0-a/coffee_lab_db_lyf9';
+
+// Create a new pool using the connection string
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  connectionString: databaseUrl,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
-// Test the connection
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('Error connecting to PostgreSQL database:', err);
-  } else {
-    console.log('Connected to PostgreSQL database at:', res.rows[0].now);
-  }
-});
-
-// Export the pool for use in other files
+// Export the pool for use in other modules
 module.exports = pool;
