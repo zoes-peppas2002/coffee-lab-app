@@ -138,15 +138,36 @@ app.post("/test-login", (req, res) => {
   return res.status(401).json({ message: 'Invalid credentials' });
 });
 
+// Debug endpoint to check server status
+app.get('/api/debug', (req, res) => {
+  console.log('=== DEBUG ENDPOINT ===');
+  console.log('Request headers:', JSON.stringify(req.headers));
+  console.log('Environment:', process.env.NODE_ENV);
+  
+  // Return server status and environment info
+  return res.status(200).json({
+    status: 'ok',
+    environment: process.env.NODE_ENV,
+    database: process.env.NODE_ENV === 'production' ? 'PostgreSQL' : 'MySQL',
+    timestamp: new Date().toISOString(),
+    headers: req.headers,
+    cookies: req.cookies || {},
+    query: req.query || {},
+    params: req.params || {}
+  });
+});
+
 // Routes
 app.use("/api/direct-auth", authRoutes); // Direct auth route
 app.use("/direct-auth", authRoutes); // Also add without /api prefix for compatibility
 
 // Add test-login endpoint for better compatibility
 app.post('/api/test-login', (req, res) => {
-  console.log('=== TEST LOGIN ENDPOINT ===');
+  console.log('=== TEST LOGIN ENDPOINT (/api/test-login) ===');
   console.log('Request body:', JSON.stringify(req.body));
   console.log('Headers:', JSON.stringify(req.headers));
+  console.log('Request URL:', req.originalUrl);
+  console.log('Request method:', req.method);
   
   const { email, password } = req.body;
   
@@ -166,14 +187,22 @@ app.post('/api/test-login', (req, res) => {
     return res.status(200).json(adminData);
   }
   
-  // If not admin, forward to the direct-auth route handler
-  return authRoutes(req, res);
+  // If not admin, try the database
+  try {
+    // Forward to the direct-auth route handler
+    return authRoutes(req, res);
+  } catch (error) {
+    console.error('Error forwarding to auth routes:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 // Also add without /api prefix for compatibility
 app.post('/test-login', (req, res) => {
-  console.log('=== TEST LOGIN ENDPOINT (NO API PREFIX) ===');
+  console.log('=== TEST LOGIN ENDPOINT (/test-login) ===');
   console.log('Request body:', JSON.stringify(req.body));
+  console.log('Request URL:', req.originalUrl);
+  console.log('Request method:', req.method);
   
   const { email, password } = req.body;
   
@@ -193,65 +222,15 @@ app.post('/test-login', (req, res) => {
     return res.status(200).json(adminData);
   }
   
-  // If not admin, forward to the direct-auth route handler
-  return authRoutes(req, res);
-});
-
-// Add test-login endpoint for better compatibility
-app.post('/api/test-login', (req, res) => {
-  console.log('=== TEST LOGIN ENDPOINT ===');
-  console.log('Request body:', JSON.stringify(req.body));
-  console.log('Headers:', JSON.stringify(req.headers));
-  
-  const { email, password } = req.body;
-  
-  // Special case for admin user
-  if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
-    console.log('Admin login successful (test endpoint)');
-    
-    // Return success with admin user data
-    const adminData = {
-      id: 1,
-      name: 'Admin',
-      email: 'zp@coffeelab.gr',
-      role: 'admin'
-    };
-    
-    console.log('Returning admin data:', JSON.stringify(adminData));
-    return res.status(200).json(adminData);
+  // If not admin, try the database
+  try {
+    // Forward to the direct-auth route handler
+    return authRoutes(req, res);
+  } catch (error) {
+    console.error('Error forwarding to auth routes:', error);
+    return res.status(500).json({ message: 'Internal server error' });
   }
-  
-  // If not admin, forward to the direct-auth route handler
-  return authRoutes(req, res);
 });
-
-// Also add without /api prefix for compatibility
-app.post('/test-login', (req, res) => {
-  console.log('=== TEST LOGIN ENDPOINT (NO API PREFIX) ===');
-  console.log('Request body:', JSON.stringify(req.body));
-  
-  const { email, password } = req.body;
-  
-  // Special case for admin user
-  if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
-    console.log('Admin login successful (test endpoint, no prefix)');
-    
-    // Return success with admin user data
-    const adminData = {
-      id: 1,
-      name: 'Admin',
-      email: 'zp@coffeelab.gr',
-      role: 'admin'
-    };
-    
-    console.log('Returning admin data:', JSON.stringify(adminData));
-    return res.status(200).json(adminData);
-  }
-  
-  // If not admin, forward to the direct-auth route handler
-  return authRoutes(req, res);
-});
-app.use("/direct-auth", authRoutes); // Also add without /api prefix for compatibility
 app.use("/direct-auth", authRoutes); // Also add without /api prefix for compatibility
 app.use("/api/users", usersRoutes);
 app.use("/api/stores", storeRoutes);

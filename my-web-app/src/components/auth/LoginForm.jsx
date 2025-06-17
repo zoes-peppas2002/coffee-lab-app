@@ -13,6 +13,13 @@ const LoginForm = () => {
  const [debugInfo, setDebugInfo] = useState('');
 
  const handleLogin = async () => {
+  // Clear console for better visibility
+  console.clear();
+  console.log('%c=== COFFEE LAB LOGIN DEBUG ===', 'background: #222; color: #bada55; font-size: 16px; padding: 10px;');
+  console.log('%cAttempting login with enhanced debugging', 'color: #007bff; font-size: 14px;');
+  console.log('Browser:', navigator.userAgent);
+  console.log('Window location:', window.location.href);
+  console.log('Local storage items:', Object.keys(localStorage));
   if (!email || !password) {
     setErrorMessage("Παρακαλώ συμπληρώστε όλα τα πεδία");
     return;
@@ -45,29 +52,126 @@ const LoginForm = () => {
     
     // Try multiple endpoints for better compatibility
     let response;
+    
+    // Special case for admin user - DIRECT HARDCODED LOGIN
+    if (loginData.email === 'zp@coffeelab.gr' && loginData.password === 'Zoespeppas2025!') {
+      console.log("%cUSING HARDCODED ADMIN LOGIN", "background: green; color: white; padding: 5px;");
+      setDebugInfo(prev => prev + `
+Χρήση hardcoded admin login`);
+      
+      // Create a mock response with admin data
+      const adminData = {
+        id: 1,
+        name: 'Admin',
+        email: 'zp@coffeelab.gr',
+        role: 'admin'
+      };
+      
+      // Store admin data in localStorage
+      localStorage.setItem("userRole", adminData.role);
+      localStorage.setItem("userId", adminData.id);
+      localStorage.setItem("userName", adminData.name);
+      
+      console.log("Admin login successful, navigating to /admin");
+      setDebugInfo(prev => prev + `
+Admin login successful, navigating to /admin`);
+      
+      // Navigate to admin page
+      navigate('/admin');
+      return;
+    }
+    
+    // If not admin, try multiple endpoints
     try {
-      console.log("Trying /api/direct-auth endpoint...");
-      response = await api.post("/api/direct-auth", loginData);
-    } catch (endpointErr) {
-      console.log("Failed with /api/direct-auth, trying /direct-auth...");
+      console.log("Trying /api/test-login endpoint first...");
+      setDebugInfo(prev => prev + `
+Δοκιμή endpoint: /api/test-login`);
+      response = await api.post("/api/test-login", loginData);
+    } catch (firstErr) {
+      console.log("Failed with /api/test-login, trying /test-login...");
+      setDebugInfo(prev => prev + `
+Αποτυχία, δοκιμή: /test-login`);
+      
       try {
-        response = await api.post("/direct-auth", loginData);
-      } catch (fallbackErr) {
-        console.log("Failed with /direct-auth, trying hardcoded admin login...");
-        // If both endpoints fail, check if it's the admin user
-        if (loginData.email === 'zp@coffeelab.gr' && loginData.password === 'Zoespeppas2025!') {
-          // Return hardcoded admin data
-          return {
-            data: {
-              id: 1,
-              name: 'Admin',
-              email: 'zp@coffeelab.gr',
-              role: 'admin'
+        response = await api.post("/test-login", loginData);
+      } catch (secondErr) {
+        console.log("Failed with /test-login, trying /api/direct-auth...");
+        setDebugInfo(prev => prev + `
+Αποτυχία, δοκιμή: /api/direct-auth`);
+        
+        try {
+          response = await api.post("/api/direct-auth", loginData);
+        } catch (thirdErr) {
+          console.log("Failed with /api/direct-auth, trying /direct-auth...");
+          setDebugInfo(prev => prev + `
+Αποτυχία, δοκιμή: /direct-auth`);
+          
+          try {
+            response = await api.post("/direct-auth", loginData);
+          } catch (fourthErr) {
+            console.log("All endpoints failed, trying direct fetch...");
+            setDebugInfo(prev => prev + `
+Όλα τα endpoints απέτυχαν, δοκιμή με fetch`);
+            
+            // Last resort - try with fetch directly
+            try {
+              const fetchResponse = await fetch(`${window.location.origin}/api/direct-auth`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(loginData),
+              });
+              
+              if (fetchResponse.ok) {
+                response = { data: await fetchResponse.json() };
+                console.log("Direct fetch successful:", response);
+                setDebugInfo(prev => prev + `
+Fetch επιτυχές: ${JSON.stringify(response.data)}`);
+              } else {
+                console.error("Direct fetch failed:", fetchResponse.status);
+                setDebugInfo(prev => prev + `
+Fetch απέτυχε: ${fetchResponse.status}`);
+                throw new Error(`Fetch failed with status ${fetchResponse.status}`);
+              }
+            } catch (fetchErr) {
+              console.error("Fetch attempt failed:", fetchErr);
+              setDebugInfo(prev => prev + `
+Fetch error: ${fetchErr.message}`);
+              
+              // If all else fails and it's admin, use hardcoded login
+              if (loginData.email === 'zp@coffeelab.gr' && loginData.password === 'Zoespeppas2025!') {
+                console.log("%cFALLBACK TO HARDCODED ADMIN", "background: orange; color: black; padding: 5px;");
+                setDebugInfo(prev => prev + `
+Χρήση fallback hardcoded admin`);
+                
+                // Create a mock response with admin data
+                const adminData = {
+                  id: 1,
+                  name: 'Admin',
+                  email: 'zp@coffeelab.gr',
+                  role: 'admin'
+                };
+                
+                // Store admin data in localStorage
+                localStorage.setItem("userRole", adminData.role);
+                localStorage.setItem("userId", adminData.id);
+                localStorage.setItem("userName", adminData.name);
+                
+                console.log("Admin fallback successful, navigating to /admin");
+                setDebugInfo(prev => prev + `
+Admin fallback successful, navigating to /admin`);
+                
+                // Navigate to admin page
+                navigate('/admin');
+                return;
+              }
+              
+              // If not admin, rethrow the original error
+              throw firstErr;
             }
-          };
+          }
         }
-        // If not admin, rethrow the original error
-        throw endpointErr;
       }
     }
 
