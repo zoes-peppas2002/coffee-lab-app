@@ -1,16 +1,37 @@
 @echo off
-echo ===== FIXING ROUTE ORDER ISSUES =====
-node fix-all-routes.js
+echo ===================================
+echo COFFEE LAB - FIX ALL ROUTES AND DEPLOY
+echo ===================================
+echo.
+echo This script will fix all route issues and deploy to Render.
+echo.
+echo Press any key to continue...
+pause > nul
 
-echo ===== PREPARING FOR RENDER DEPLOYMENT =====
+echo.
+echo Step 1: Fixing login issues...
+call run-direct-fix.bat
+
+echo.
+echo Step 2: Fixing path-to-regexp error...
+call fix-path-to-regexp-error.bat
+
+echo.
+echo Step 3: Fixing route order...
+call fix-route-order.bat
+
+echo.
+echo Step 4: Preparing for Render deployment...
 call prepare-for-render-deploy.bat
 
-echo ===== DEPLOYING TO RENDER =====
+echo.
+echo Step 5: Deploying to Render...
 call deploy-to-render.bat
 
-echo ===== PROCESS COMPLETED =====
-echo Please check the Render dashboard to verify the deployment.
-echo Visit: https://dashboard.render.com
 echo.
-echo Remember to select "Clear build cache & deploy" for a clean deployment.
-pause
+echo All steps completed!
+echo.
+echo The application has been fixed and deployed to Render.
+echo.
+echo Press any key to exit...
+pause > nul

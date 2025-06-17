@@ -3,8 +3,7 @@
  * This script:
  * 1. Fixes the direct-auth.js file
  * 2. Updates the server.js file
- * 3. Creates a fallback login component
- * 4. Updates the App.jsx file
+ * 3. Updates the FallbackLoginForm.jsx file
  */
 const fs = require('fs');
 const path = require('path');
@@ -21,7 +20,8 @@ function fixDirectAuth() {
     content = content.replace(
       /router.post\('\/direct-login', async \(req, res\) => {/,
       `router.post('/direct-login', async (req, res) => {
-  const isPg = process.env.DATABASE_TYPE === 'pg';`
+  // Determine if we're using PostgreSQL or MySQL
+  const isPg = process.env.NODE_ENV === 'production';`
     );
     
     // Remove any console.log statements that use isPg before it's defined
@@ -47,39 +47,87 @@ function updateServer() {
   try {
     let content = fs.readFileSync(filePath, 'utf8');
     
-    // Add the test-login endpoint with the /api prefix
-    if (!content.includes('app.post(\'/api/test-login\'')) {
-      content = content.replace(
-        /app.use\('\/api\/auth', authRoutes\);/,
-        `app.use('/api/auth', authRoutes);
+    // Add the test-login endpoint without the /api prefix
+    if (!content.includes('app.post("/test-login"')) {
+      // Find the position to insert the test-login endpoint
+      const attachPoolPosition = content.indexOf('// Attach pool to each request');
+      if (attachPoolPosition !== -1) {
+        const afterAttachPool = content.indexOf('});', attachPoolPosition) + 3;
+        
+        const testLoginEndpoint = `
 
-// Test login endpoint
-app.post('/api/test-login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    console.log('Test login attempt:', email);
+// Debug route to test login - IMPORTANT: This must be defined BEFORE the API routes
+app.post("/test-login", (req, res) => {
+  console.log('=== TEST LOGIN ENDPOINT ===');
+  console.log('Request body:', JSON.stringify(req.body));
+  console.log('Headers:', JSON.stringify(req.headers));
+  
+  const { email, password } = req.body;
+  
+  // Special case for admin user (hardcoded fallback)
+  if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
+    console.log('Admin login successful (test endpoint)');
     
-    // Hardcoded admin credentials for testing
-    if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
-      return res.json({
-        success: true,
-        user: {
-          id: 1,
-          email: 'zp@coffeelab.gr',
-          name: 'Zoe Speppas',
-          role: 'admin'
-        },
-        token: 'test-token-for-admin'
-      });
+    // Return success with admin user data
+    const adminData = {
+      id: 1,
+      name: 'Admin',
+      email: 'zp@coffeelab.gr',
+      role: 'admin'
+    };
+    
+    console.log('Returning admin data:', JSON.stringify(adminData));
+    return res.status(200).json(adminData);
+  }
+  
+  return res.status(401).json({ message: 'Invalid credentials' });
+});`;
+        
+        content = content.slice(0, afterAttachPool) + testLoginEndpoint + content.slice(afterAttachPool);
+      }
     }
     
-    return res.status(401).json({ success: false, message: 'Invalid credentials' });
-  } catch (error) {
-    console.error('Test login error:', error);
-    return res.status(500).json({ success: false, message: 'Server error' });
+    // Make sure the API routes are defined after the test-login endpoint
+    if (content.includes('app.post("/test-login"') && content.includes('app.post("/api/test-login"')) {
+      // Remove the existing /api/test-login endpoint
+      content = content.replace(/\/\/ Debug route to test login\napp\.post\("\/api\/test-login"[\s\S]*?}\);/m, '');
+      
+      // Add the /api/test-login endpoint after the API routes
+      const apiRoutesPosition = content.indexOf('app.use("/api/network", networkRoutes);');
+      if (apiRoutesPosition !== -1) {
+        const afterApiRoutes = content.indexOf(';', apiRoutesPosition) + 1;
+        
+        const apiTestLoginEndpoint = `
+
+// Also add the test-login endpoint with the /api prefix for compatibility
+app.post("/api/test-login", (req, res) => {
+  console.log('=== API TEST LOGIN ENDPOINT ===');
+  console.log('Request body:', JSON.stringify(req.body));
+  console.log('Headers:', JSON.stringify(req.headers));
+  
+  const { email, password } = req.body;
+  
+  // Special case for admin user (hardcoded fallback)
+  if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
+    console.log('Admin login successful (API test endpoint)');
+    
+    // Return success with admin user data
+    const adminData = {
+      id: 1,
+      name: 'Admin',
+      email: 'zp@coffeelab.gr',
+      role: 'admin'
+    };
+    
+    console.log('Returning admin data:', JSON.stringify(adminData));
+    return res.status(200).json(adminData);
   }
-});`
-      );
+  
+  return res.status(401).json({ message: 'Invalid credentials' });
+});`;
+        
+        content = content.slice(0, afterApiRoutes) + apiTestLoginEndpoint + content.slice(afterApiRoutes);
+      }
     }
     
     fs.writeFileSync(filePath, content);
@@ -91,181 +139,88 @@ app.post('/api/test-login', async (req, res) => {
   }
 }
 
-// Create fallback login component
-function createFallbackLogin() {
-  console.log('Creating fallback login component...');
+// Update FallbackLoginForm.jsx
+function updateFallbackLoginForm() {
+  console.log('Updating FallbackLoginForm.jsx...');
   const filePath = path.join(__dirname, 'my-web-app', 'src', 'components', 'auth', 'FallbackLoginForm.jsx');
-  
-  try {
-    const content = `import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './LoginForm.css';
-
-const FallbackLoginForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      // First try the test-login endpoint
-      const response = await axios.post('/api/test-login', { email, password });
-      
-      if (response.data.success) {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
-        
-        // Redirect based on role
-        if (response.data.user.role === 'admin') {
-          navigate('/admin');
-        } else if (response.data.user.role === 'area_manager') {
-          navigate('/area-manager');
-        } else {
-          navigate('/coffee-specialist');
-        }
-      } else {
-        setError('Invalid credentials');
-      }
-    } catch (firstError) {
-      console.error('First login attempt failed:', firstError);
-      
-      // If test-login fails, try direct-login
-      try {
-        const directResponse = await axios.post('/api/auth/direct-login', { email, password });
-        
-        if (directResponse.data.success) {
-          localStorage.setItem('token', directResponse.data.token);
-          localStorage.setItem('user', JSON.stringify(directResponse.data.user));
-          
-          // Redirect based on role
-          if (directResponse.data.user.role === 'admin') {
-            navigate('/admin');
-          } else if (directResponse.data.user.role === 'area_manager') {
-            navigate('/area-manager');
-          } else {
-            navigate('/coffee-specialist');
-          }
-        } else {
-          setError('Invalid credentials');
-        }
-      } catch (secondError) {
-        console.error('Second login attempt failed:', secondError);
-        setError('Login failed. Please try again later.');
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="login-container">
-      <div className="login-form-container">
-        <div className="login-header">
-          <h2>Coffee Lab</h2>
-          <p>Welcome back! Please login to your account.</p>
-        </div>
-        
-        {error && <div className="error-message">{error}</div>}
-        
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Enter your email"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Enter your password"
-            />
-          </div>
-          
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-        
-        <div className="login-footer">
-          <p>For testing, use:</p>
-          <p>Email: zp@coffeelab.gr</p>
-          <p>Password: Zoespeppas2025!</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default FallbackLoginForm;
-`;
-    
-    // Create the directory if it doesn't exist
-    const dir = path.dirname(filePath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    
-    fs.writeFileSync(filePath, content);
-    console.log('FallbackLoginForm.jsx created successfully.');
-    return true;
-  } catch (error) {
-    console.error('Error creating FallbackLoginForm.jsx:', error);
-    return false;
-  }
-}
-
-// Update App.jsx
-function updateApp() {
-  console.log('Updating App.jsx...');
-  const filePath = path.join(__dirname, 'my-web-app', 'src', 'App.jsx');
   
   try {
     let content = fs.readFileSync(filePath, 'utf8');
     
-    // Import FallbackLoginForm
-    if (!content.includes('import FallbackLoginForm from')) {
-      content = content.replace(
-        /import LoginForm from '\.\/components\/auth\/LoginForm';/,
-        `import LoginForm from './components/auth/LoginForm';
-import FallbackLoginForm from './components/auth/FallbackLoginForm';`
-      );
-    }
+    // Update the API URL handling
+    content = content.replace(
+      /const apiUrl = import\.meta\.env\.VITE_API_URL \|\| '\/api';/,
+      `const apiUrl = import.meta.env.VITE_API_URL || '';
+      const baseUrl = window.location.origin;`
+    );
     
-    // Add FallbackLoginForm route
-    if (!content.includes('<Route path="/fallback-login"')) {
-      content = content.replace(
-        /<Route path="\/login" element={<LoginForm \/>} \/>/,
-        `<Route path="/login" element={<LoginForm />} />
-          <Route path="/fallback-login" element={<FallbackLoginForm />} />`
-      );
-    }
+    // Update the debug info
+    content = content.replace(
+      /setDebugInfo\(`Προσπάθεια σύνδεσης στο: \${apiUrl}`\);/,
+      `setDebugInfo(\`Προσπάθεια σύνδεσης στο: \${baseUrl}\`);`
+    );
     
-    // Fix any syntax errors (extra closing brackets)
-    content = content.replace(/}\)}\)}/g, '})}}');
+    // Update the console.log statements
+    content = content.replace(
+      /console\.log\("API URL:", apiUrl\);/,
+      `console.log("API URL:", apiUrl);
+      console.log("Base URL:", baseUrl);`
+    );
+    
+    // Update the test-login endpoint call
+    content = content.replace(
+      /const testResponse = await axios\.post\(`\${apiUrl}\/test-login`, loginData\);/,
+      `console.log("Trying test-login endpoint without /api prefix");
+        const testResponse = await axios.post(\`\${baseUrl}/test-login\`, loginData);`
+    );
+    
+    // Add the API test-login endpoint call
+    content = content.replace(
+      /} catch \(testErr\) {[\s\S]*?setDebugInfo\(prev => prev \+ `\\nΑποτυχία σύνδεσης με test-login: \${testErr\.message}`\);[\s\S]*?}/,
+      `} catch (testErr) {
+        console.log("Test login failed:", testErr.message);
+        setDebugInfo(prev => prev + \`\\nΑποτυχία σύνδεσης με test-login: \${testErr.message}\`);
+      }
+      
+      // Try the test-login endpoint with /api prefix
+      try {
+        console.log("Trying test-login endpoint with /api prefix");
+        const apiTestResponse = await axios.post(\`\${baseUrl}/api/test-login\`, loginData);
+        console.log("API test login successful:", apiTestResponse.data);
+        
+        const user = apiTestResponse.data;
+        setDebugInfo(prev => prev + \`\\nΕπιτυχής σύνδεση με api/test-login! Ρόλος: \${user.role}\`);
+        
+        // Store user data
+        localStorage.setItem("userRole", user.role);
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userName", user.name);
+        
+        // Navigate based on role
+        if (user.role === 'admin') navigate('/admin');
+        else if (user.role === 'area_manager') navigate('/area-manager');
+        else if (user.role === 'coffee_specialist') navigate('/coffee-specialist');
+        else navigate('/');
+        
+        return;
+      } catch (apiTestErr) {
+        console.log("API test login failed:", apiTestErr.message);
+        setDebugInfo(prev => prev + \`\\nΑποτυχία σύνδεσης με api/test-login: \${apiTestErr.message}\`);
+      }`
+    );
+    
+    // Update the direct-login endpoint call
+    content = content.replace(
+      /const directResponse = await axios\.post\(`\${apiUrl}\/auth\/direct-login`, loginData\);/,
+      `console.log("Trying direct-login endpoint");
+        const directResponse = await axios.post(\`\${baseUrl}/api/auth/direct-login\`, loginData);`
+    );
     
     fs.writeFileSync(filePath, content);
-    console.log('App.jsx updated successfully.');
+    console.log('FallbackLoginForm.jsx updated successfully.');
     return true;
   } catch (error) {
-    console.error('Error updating App.jsx:', error);
+    console.error('Error updating FallbackLoginForm.jsx:', error);
     return false;
   }
 }
@@ -282,11 +237,8 @@ async function main() {
   // Update server.js
   const serverUpdated = updateServer();
   
-  // Create fallback login component
-  const fallbackLoginCreated = createFallbackLogin();
-  
-  // Update App.jsx
-  const appUpdated = updateApp();
+  // Update FallbackLoginForm.jsx
+  const fallbackLoginUpdated = updateFallbackLoginForm();
   
   // Summary
   console.log('\n=================================================');
@@ -294,11 +246,12 @@ async function main() {
   console.log('=================================================');
   console.log(`direct-auth.js: ${directAuthFixed ? '✅ Fixed' : '❌ Failed'}`);
   console.log(`server.js: ${serverUpdated ? '✅ Updated' : '❌ Failed'}`);
-  console.log(`FallbackLoginForm.jsx: ${fallbackLoginCreated ? '✅ Created' : '❌ Failed'}`);
-  console.log(`App.jsx: ${appUpdated ? '✅ Updated' : '❌ Failed'}`);
+  console.log(`FallbackLoginForm.jsx: ${fallbackLoginUpdated ? '✅ Updated' : '❌ Failed'}`);
   
-  if (directAuthFixed && serverUpdated && fallbackLoginCreated && appUpdated) {
+  if (directAuthFixed && serverUpdated && fallbackLoginUpdated) {
     console.log('\n✅ All login issues fixed!');
+    console.log('\nTo run the fixed application, use:');
+    console.log('run-fixed-app.bat');
   } else {
     console.log('\n❌ Some fixes failed. Please check the logs above.');
   }

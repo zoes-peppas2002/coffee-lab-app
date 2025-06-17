@@ -3,10 +3,7 @@ echo ===================================
 echo COFFEE LAB - PREPARE FOR RENDER DEPLOYMENT
 echo ===================================
 echo.
-echo This script will prepare the application for deployment to Render by:
-echo 1. Building the frontend
-echo 2. Copying the frontend build to the backend
-echo 3. Updating the .env files
+echo This script will prepare the application for deployment to Render.
 echo.
 echo Press any key to continue...
 pause > nul
@@ -18,15 +15,20 @@ call npm run build
 cd ..
 
 echo.
+echo Creating frontend-build directory in backend...
+if not exist backend\frontend-build mkdir backend\frontend-build
+
+echo.
 echo Copying frontend build to backend...
-if exist backend\frontend-build rmdir /s /q backend\frontend-build
-mkdir backend\frontend-build
-xcopy /s /e /y my-web-app\dist\* backend\frontend-build\
+xcopy /E /Y my-web-app\dist\* backend\frontend-build\
 
 echo.
-echo Updating .env files...
-copy /y backend\.env.production backend\.env
+echo Copying production environment files...
+copy my-web-app\.env.production my-web-app\.env
+copy backend\.env.production backend\.env
 
 echo.
-echo Preparation complete. Press any key to exit...
+echo Application is now ready for deployment to Render!
+echo.
+echo Press any key to exit...
 pause > nul

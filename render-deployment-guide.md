@@ -1,20 +1,31 @@
-# Render Deployment Guide
+# Coffee Lab Render Deployment Guide
 
 This guide outlines the steps to deploy the Coffee Lab web application to Render.
 
 ## Prerequisites
 
 1. A Render account
-2. A GitHub repository with the application code
-3. The application code should be structured as follows:
-   - Backend code in the `backend` directory
-   - Frontend code in the `my-web-app` directory
+2. A GitHub repository with the Coffee Lab application code
+3. The application code should be fixed and ready for deployment
 
-## Steps
+## Deployment Steps
 
-### 1. Prepare the Application
+### 1. Fix Login Issues
 
-Run the `prepare-for-render-deploy.bat` file to prepare the application for deployment:
+Before deploying, make sure the login issues are fixed by running:
+
+```
+fix-login-issue.bat
+```
+
+This will:
+- Fix the isPg variable definition in direct-auth.js
+- Update the server.js file to include the test-login endpoint
+- Update the FallbackLoginForm.jsx file to make the correct API calls
+
+### 2. Prepare for Render Deployment
+
+Run the following command to prepare the application for deployment:
 
 ```
 prepare-for-render-deploy.bat
@@ -23,11 +34,11 @@ prepare-for-render-deploy.bat
 This will:
 - Build the frontend
 - Copy the frontend build to the backend
-- Update the .env files
+- Copy the production environment files
 
-### 2. Push to GitHub
+### 3. Deploy to Render
 
-Run the `deploy-to-render.bat` file to push the changes to GitHub:
+Run the following command to deploy the application to Render:
 
 ```
 deploy-to-render.bat
@@ -35,53 +46,58 @@ deploy-to-render.bat
 
 This will:
 - Commit the changes to GitHub
-- Push the changes to GitHub
-- Trigger a deployment on Render
+- Push the changes to the repository
+- Trigger the automatic deployment on Render
 
-### 3. Configure Render
+Alternatively, you can run all steps at once using:
 
-If you haven't already configured Render, follow these steps:
+```
+fix-and-deploy-all.bat
+```
 
-1. Log in to your Render account
-2. Click on "New" and select "Web Service"
-3. Connect your GitHub repository
-4. Configure the service as follows:
-   - Name: `coffee-lab-app` (or any name you prefer)
-   - Environment: `Node`
-   - Build Command: `npm install`
-   - Start Command: `npm start`
-   - Root Directory: `backend` (since the frontend is built and copied to the backend)
-5. Add the following environment variables:
-   - `NODE_ENV`: `production`
-   - `PORT`: `10000` (or any port you prefer)
-   - `DATABASE_URL`: Your PostgreSQL database URL
-   - `JWT_SECRET`: Your JWT secret
-6. Click on "Create Web Service"
+## Render Configuration
 
-### 4. Verify Deployment
+### Web Service Configuration
 
-Once the deployment is complete, you can verify it by:
+1. **Service Type**: Web Service
+2. **Name**: coffee-lab
+3. **Environment**: Node
+4. **Build Command**: `npm install`
+5. **Start Command**: `node server.js`
+6. **Root Directory**: `backend`
 
-1. Checking the Render logs for any errors
-2. Visiting the deployed application URL
-3. Testing the login functionality with the following credentials:
-   - Email: zp@coffeelab.gr
-   - Password: Zoespeppas2025!
+### Environment Variables
+
+Make sure the following environment variables are set in the Render dashboard:
+
+- `NODE_ENV`: `production`
+- `PORT`: `10000`
+- `DATABASE_URL`: Your PostgreSQL database URL
+
+### Database Configuration
+
+1. Create a PostgreSQL database in Render
+2. Connect it to your web service
+3. The `DATABASE_URL` environment variable will be automatically set
 
 ## Troubleshooting
 
-If you encounter any issues:
+If you encounter any issues with the deployment:
 
-1. Check the Render logs for errors
-2. Verify that the environment variables are correctly set
-3. Ensure that the database is correctly configured
-4. Check that the frontend build is correctly copied to the backend
-5. Verify that the .env files are correctly configured
-6. Check that the GitHub repository is correctly set up
-7. Ensure that Render is correctly configured to deploy from GitHub
+1. Check the Render logs for any errors
+2. Verify that the environment variables are set correctly
+3. Make sure the database is properly connected
+4. Check that the frontend build was correctly copied to the backend
+5. Verify that the isPg variable is correctly defined in direct-auth.js
+6. Check that the test-login endpoint is correctly defined in server.js
+7. Verify that the FallbackLoginForm.jsx file is making the correct API calls
 
-## Additional Resources
+## Testing the Deployment
 
-- [Render Documentation](https://render.com/docs)
-- [Node.js on Render](https://render.com/docs/deploy-node-express-app)
-- [PostgreSQL on Render](https://render.com/docs/databases)
+After the deployment is complete, you can test the login functionality using:
+
+```
+test-render-login.bat
+```
+
+This will test the login functionality on the deployed application.

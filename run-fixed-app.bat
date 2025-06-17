@@ -21,5 +21,10 @@ echo Starting frontend...
 start cmd /k "cd my-web-app && npm run dev"
 
 echo.
-echo Application started. Press any key to exit...
+echo Application started!
+echo.
+echo IMPORTANT: Use the following URL to access the application:
+echo http://localhost:5173
+echo.
+echo Press any key to exit...
 pause > nul

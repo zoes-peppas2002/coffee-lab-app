@@ -1,119 +1,131 @@
 # Coffee Lab Web Application
 
-A web application for managing coffee shop checklists and quality control.
-
-## Overview
-
-The Coffee Lab web application is designed to help coffee shop managers and specialists manage quality control checklists for coffee shops. It includes features for creating and managing checklists, viewing statistics, and managing users and stores.
+This repository contains the Coffee Lab web application, which consists of a React frontend and a Node.js backend.
 
 ## Project Structure
 
-- **Backend**: Node.js server with Express.js
-  - Located in the `backend` directory
-  - Uses PostgreSQL for database storage
-  - Provides RESTful API endpoints for the frontend
+- `backend/`: Node.js backend with Express
+- `my-web-app/`: React frontend built with Vite
+- Various utility scripts for setup, testing, and deployment
 
-- **Frontend**: React.js application
-  - Located in the `my-web-app` directory
-  - Built with Vite
-  - Uses React Router for navigation
-  - Uses Axios for API calls
+## Database Connection
 
-## Setup and Installation
+The application uses PostgreSQL in production (Render) and can use MySQL locally. The database connection details are stored in:
 
-1. **Clone the repository**
+- `backend/db-pg.js`: PostgreSQL connection for production
+- `backend/.env.production`: Environment variables for production
+- `backend/.env`: Environment variables for development
 
-2. **Install dependencies**
+## Available Scripts
+
+### Setup and Testing
+
+- `install-dependencies.bat`: Installs all required dependencies for the application
+- `test-updated-db-connection.bat`: Tests the database connection with the updated credentials
+- `fix-users-table.bat`: Fixes the users table schema by adding missing columns
+- `create-and-populate-db.bat`: Creates and populates the database with the necessary tables and data
+- `run-local-test.bat`: Runs the backend and frontend locally for testing
+- `fix-everything.bat`: Runs all the above scripts in sequence to fix all issues
+
+### Deployment
+
+- `deploy-to-render.bat`: Deploys the application to Render
+
+## Running Locally
+
+1. Install all dependencies:
    ```
    install-dependencies.bat
    ```
 
-3. **Initialize the database**
+2. Run the database connection test:
    ```
-   init-database.bat
-   ```
-
-4. **Set up the local environment**
-   ```
-   setup-local-environment.bat
+   test-updated-db-connection.bat
    ```
 
-## Running the Application
-
-1. **Run the application locally**
+3. Fix the users table schema:
    ```
-   run-app.bat
+   fix-users-table.bat
    ```
 
-2. **Run the fixed application locally**
+4. Create and populate the database:
    ```
-   run-fixed-app.bat
-   ```
-
-## Testing
-
-1. **Test the login functionality locally**
-   ```
-   test-login.bat
+   create-and-populate-db.bat
    ```
 
-2. **Test the login functionality on Render**
+5. Run the application locally:
    ```
-   test-render-login.bat
-   ```
-
-3. **Run all tests**
-   ```
-   run-all-tests.bat
+   run-local-test.bat
    ```
 
-## Deployment
+Alternatively, you can run all the above steps in sequence with:
+```
+fix-everything.bat
+```
 
-1. **Prepare for Render deployment**
-   ```
-   prepare-for-render-deploy.bat
-   ```
+4. Open your browser and navigate to:
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:5000
 
-2. **Deploy to Render**
+5. Login with the default admin credentials:
+   - Email: zp@coffeelab.gr
+   - Password: Zoespeppas2025!
+
+## Deploying to Render
+
+1. Make sure all your changes are committed to the local repository.
+
+2. Run the deployment script:
    ```
    deploy-to-render.bat
    ```
 
-3. **Fix issues and deploy in one go**
-   ```
-   fix-and-deploy-all.bat
-   ```
+3. Wait for the deployment to complete. It may take a few minutes for the changes to take effect.
 
-## Documentation
-
-1. **CLEANUP_README.md**
-   - Documentation of the changes made and the steps to fix the login issues
-
-2. **changes-summary.md**
-   - Summary of the changes made to fix the login issues
-
-3. **render-deployment-guide.md**
-   - Guide for deploying the application to Render
-
-4. **BATCH_FILES_README.md**
-   - Documentation of the batch files created
-
-## Login Credentials
-
-For testing purposes, you can use the following hardcoded admin credentials:
-
-- Email: zp@coffeelab.gr
-- Password: Zoespeppas2025!
+4. Access your application at the Render URL.
 
 ## Troubleshooting
 
-If you encounter any issues:
+### Database Connection Issues
 
-1. Check the console logs for errors
-2. Ensure all dependencies are installed
-3. Verify that the database connection is working
-4. Check that the API endpoints are correctly configured
-5. Ensure that the frontend is correctly built and copied to the backend
-6. Verify that the .env files are correctly configured
-7. Check that the GitHub repository is correctly set up
-8. Verify that Render is correctly configured to deploy from GitHub
+If you're experiencing database connection issues, check the following:
+
+1. Verify the database credentials in:
+   - `backend/db-pg.js`
+   - `backend/.env.production`
+   - `backend/.env`
+
+2. Run the database connection test:
+   ```
+   test-updated-db-connection.bat
+   ```
+
+3. Check if the database server is running and accessible.
+
+4. If there are issues with the users table schema, run:
+   ```
+   fix-users-table.bat
+   ```
+   This will add any missing columns to the users table.
+
+### Login Issues
+
+If you're having trouble logging in, try the following:
+
+1. Use the hardcoded admin credentials:
+   - Email: zp@coffeelab.gr
+   - Password: Zoespeppas2025!
+
+2. Check the browser console for any error messages.
+
+3. Verify that the backend API is running and accessible.
+
+4. Check the API URL in the frontend environment variables:
+   - Development: `my-web-app/.env.development`
+   - Production: `my-web-app/.env.production`
+
+## Recent Updates
+
+- Fixed database connection issues by updating the hostname and password
+- Created scripts for testing the database connection and running the application locally
+- Added deployment script for Render

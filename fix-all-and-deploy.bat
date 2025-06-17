@@ -3,49 +3,31 @@ echo ===================================
 echo COFFEE LAB - FIX ALL AND DEPLOY
 echo ===================================
 echo.
-echo This script will:
-echo 1. Fix the route order in templates.js
-echo 2. Fix route order issues in all route files
-echo 3. Push the changes to GitHub
-echo 4. Deploy to Render
+echo This script will fix all issues and deploy the application to Render.
 echo.
 echo Press any key to continue...
 pause > nul
 
 echo.
-echo Step 1: Fixing templates.js...
-node fix-templates-route.js
+echo Step 1: Fixing login issues...
+call run-direct-fix.bat
 
 echo.
-echo Step 2: Fixing route order in all files...
-node fix-route-order.js
+echo Step 2: Fixing path-to-regexp error...
+call fix-path-to-regexp-error.bat
 
 echo.
-echo Step 3: Testing the server locally...
-echo Starting the server. Press Ctrl+C to stop after a few seconds if everything looks good.
-echo.
-start /wait cmd /c "cd backend && node server.js"
+echo Step 3: Preparing for Render deployment...
+call prepare-for-render-deploy.bat
 
 echo.
-echo Step 4: Pushing changes to GitHub...
-git add .
-set /p commit_message=Enter commit message (e.g., "Fix route order issues"): 
-git commit -m "%commit_message%"
-git push
+echo Step 4: Deploying to Render...
+call deploy-to-render.bat
 
 echo.
-echo Step 5: Deploying to Render...
+echo All steps completed!
 echo.
-echo Please follow these steps to deploy to Render:
-echo 1. Go to your Render dashboard: https://dashboard.render.com
-echo 2. Select your web service
-echo 3. Go to "Manual Deploy" and select "Clear build cache & deploy"
+echo The application has been fixed and deployed to Render.
 echo.
-echo ===================================
-echo Process completed!
-echo.
-echo Your changes have been pushed to GitHub.
-echo Don't forget to deploy manually on Render.
-echo ===================================
-echo.
-pause
+echo Press any key to exit...
+pause > nul

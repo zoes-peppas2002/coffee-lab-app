@@ -3,26 +3,32 @@ echo ===================================
 echo COFFEE LAB - DEPLOY TO RENDER
 echo ===================================
 echo.
-echo This script will deploy the application to Render by:
-echo 1. Committing the changes to GitHub
-echo 2. Pushing the changes to GitHub
-echo 3. Triggering a deployment on Render
+echo This script will deploy the application to Render.
 echo.
 echo Press any key to continue...
 pause > nul
 
 echo.
-echo Committing changes to GitHub...
-git add .
-git commit -m "Fix login issues and prepare for Render deployment"
+echo Step 1: Building the frontend...
+cd my-web-app
+call npm run build
+cd ..
 
 echo.
-echo Pushing changes to GitHub...
-git push
+echo Step 2: Copying the frontend build to the backend...
+if exist backend\frontend-build rmdir /s /q backend\frontend-build
+mkdir backend\frontend-build
+xcopy /s /e /y my-web-app\dist\* backend\frontend-build\
 
 echo.
-echo Deployment triggered. Render will automatically deploy the application.
-echo Please check the Render dashboard for deployment status.
+echo Step 3: Committing and pushing changes to both repositories...
+call commit-all-changes.bat
+
+echo.
+echo Deployment completed!
+echo.
+echo The application has been deployed to Render.
+echo It may take a few minutes for the changes to take effect.
 echo.
 echo Press any key to exit...
 pause > nul
