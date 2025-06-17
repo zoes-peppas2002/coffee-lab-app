@@ -139,11 +139,38 @@ Fetch απέτυχε: ${fetchResponse.status}`);
               setDebugInfo(prev => prev + `
 Fetch error: ${fetchErr.message}`);
               
-              // If all else fails and it's admin, use hardcoded login
+              // If all else fails and it's admin, use the fallback login utility
               if (loginData.email === 'zp@coffeelab.gr' && loginData.password === 'Zoespeppas2025!') {
-                console.log("%cFALLBACK TO HARDCODED ADMIN", "background: orange; color: black; padding: 5px;");
+                console.log("%cTRYING FALLBACK LOGIN UTILITY", "background: orange; color: black; padding: 5px;");
                 setDebugInfo(prev => prev + `
-Χρήση fallback hardcoded admin`);
+Δοκιμή fallback login utility`);
+                
+                try {
+                  // Use the fallback login utility
+                  const result = await attemptFallbackLogin(loginData.email, loginData.password);
+                  
+                  if (result.success) {
+                    // Store admin data in localStorage
+                    localStorage.setItem("userRole", result.data.role);
+                    localStorage.setItem("userId", result.data.id);
+                    localStorage.setItem("userName", result.data.name);
+                    
+                    console.log("Fallback login successful, navigating to /admin");
+                    setDebugInfo(prev => prev + `
+Fallback login successful, navigating to /admin`);
+                    navigate('/admin');
+                    return;
+                  }
+                } catch (fallbackError) {
+                  console.error("Fallback login error:", fallbackError);
+                  setDebugInfo(prev => prev + `
+Fallback login error: ${fallbackError.message}`);
+                }
+                
+                // If fallback login fails, use hardcoded admin data as last resort
+                console.log("%cUSING HARDCODED ADMIN DATA", "background: red; color: white; padding: 5px;");
+                setDebugInfo(prev => prev + `
+Χρήση hardcoded admin data ως τελευταία λύση`);
                 
                 // Create a mock response with admin data
                 const adminData = {
@@ -158,9 +185,9 @@ Fetch error: ${fetchErr.message}`);
                 localStorage.setItem("userId", adminData.id);
                 localStorage.setItem("userName", adminData.name);
                 
-                console.log("Admin fallback successful, navigating to /admin");
+                console.log("Hardcoded admin data used, navigating to /admin");
                 setDebugInfo(prev => prev + `
-Admin fallback successful, navigating to /admin`);
+Hardcoded admin data used, navigating to /admin`);
                 
                 // Navigate to admin page
                 navigate('/admin');

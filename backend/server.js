@@ -42,10 +42,18 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: [process.env.FRONTEND_URL, 'http://localhost:5173', 'http://172.20.10.4:5173', 'http://192.168.1.223:5173'],
+  origin: [
+    process.env.FRONTEND_URL, 
+    'http://localhost:5173', 
+    'http://172.20.10.4:5173', 
+    'http://192.168.1.223:5173',
+    'https://coffee-lab-app-frontend.onrender.com',
+    'https://coffee-lab-app.onrender.com'
+  ],
   credentials: false, // Changed to false to match API settings
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Length', 'Content-Type']
 }));
 app.use(express.json());
 
@@ -239,17 +247,18 @@ app.use("/api/checklists", checklistRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/network", networkRoutes);
 
-// Also add the test-login endpoint with the /api prefix for compatibility
-app.post("/api/test-login", (req, res) => {
-  console.log('=== API TEST LOGIN ENDPOINT ===');
+
+
+// Special fallback route for direct admin login
+app.post('/fallback-admin-login', (req, res) => {
+  console.log('=== FALLBACK ADMIN LOGIN ENDPOINT ===');
   console.log('Request body:', JSON.stringify(req.body));
-  console.log('Headers:', JSON.stringify(req.headers));
   
   const { email, password } = req.body;
   
-  // Special case for admin user (hardcoded fallback)
+  // Only allow admin login through this endpoint
   if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
-    console.log('Admin login successful (API test endpoint)');
+    console.log('Admin login successful (fallback endpoint)');
     
     // Return success with admin user data
     const adminData = {

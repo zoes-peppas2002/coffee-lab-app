@@ -1,37 +1,25 @@
 @echo off
-echo ===================================
-echo COFFEE LAB - FIX RENDER LOGIN AND DEPLOY
-echo ===================================
-echo.
+echo ===== COFFEE LAB - FIX RENDER LOGIN AND DEPLOY =====
+echo This script will fix all login issues and deploy to Render
 
-echo Step 1: Running the fix script...
-node fix-login-and-routes.js
-if %ERRORLEVEL% NEQ 0 (
-  echo Error running fix script!
-  exit /b %ERRORLEVEL%
-)
 echo.
+echo Step 1: Running the fix-render-deployment script...
+call fix-render-deployment.bat
 
-echo Step 2: Committing changes...
-call commit-all-changes.bat "Fix login issues for Render deployment"
-if %ERRORLEVEL% NEQ 0 (
-  echo Error committing changes!
-  exit /b %ERRORLEVEL%
-)
 echo.
+echo Step 2: Testing login endpoints...
+call test-login-endpoints.bat
 
-echo Step 3: Deploying to Render...
-call deploy-to-render.bat
-if %ERRORLEVEL% NEQ 0 (
-  echo Error deploying to Render!
-  exit /b %ERRORLEVEL%
-)
 echo.
-
 echo All steps completed successfully!
-echo Please check the Render dashboard for deployment status.
 echo.
-echo For more information, see fix-render-login-summary.md
+echo Next steps:
+echo 1. Wait for the deployment to complete on Render (2-3 minutes)
+echo 2. Visit https://coffee-lab-app-frontend.onrender.com
+echo 3. Use the "Admin Login" button or login with:
+echo    - Email: zp@coffeelab.gr
+echo    - Password: Zoespeppas2025!
+echo 4. If you encounter any issues, check the browser console (F12)
 echo.
-
-pause
+echo Press any key to continue . . .
+pause > nul
