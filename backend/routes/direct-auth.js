@@ -7,6 +7,24 @@ const router = express.Router();
  */
 router.post('/', async (req, res) => {
   try {
+    console.log('DETAILED LOGIN DEBUG - Request received');
+    console.log('Request URL:', req.originalUrl);
+    console.log('Request method:', req.method);
+    console.log('Request path:', req.path);
+    console.log('Request query:', JSON.stringify(req.query));
+    console.log('Request params:', JSON.stringify(req.params));
+    console.log('Request body:', JSON.stringify(req.body));
+    console.log('Request headers:', JSON.stringify(req.headers));
+
+    console.log('DETAILED LOGIN DEBUG - Request received');
+    console.log('Request URL:', req.originalUrl);
+    console.log('Request method:', req.method);
+    console.log('Request path:', req.path);
+    console.log('Request query:', JSON.stringify(req.query));
+    console.log('Request params:', JSON.stringify(req.params));
+    console.log('Request body:', JSON.stringify(req.body));
+    console.log('Request headers:', JSON.stringify(req.headers));
+
     // Determine if we're using PostgreSQL or MySQL
     const isPg = process.env.NODE_ENV === 'production';
     
