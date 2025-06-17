@@ -1,7 +1,7 @@
 # Coffee Lab App - Login Fix Summary
 
 ## Problem
-The application was working locally but not on Render. When entering admin credentials on Render, the user was redirected back to the login form. Additionally, there was an error message about skipping email constraint in PostgreSQL.
+The application was working locally but not on Render. When entering admin credentials on Render, the user was redirected back to the login form. Additionally, there was an error message about skipping email constraint in PostgreSQL. When trying to access the site from another device or reloading the page, a "Not Found" error was displayed.
 
 ## Root Causes Identified
 1. **Environment Configuration**: The local `.env` file was set to production mode, causing it to try to use PostgreSQL locally
@@ -50,6 +50,11 @@ VITE_NODE_ENV=production
 - Modified `backend/init-db.js` to properly handle the email UNIQUE constraint in PostgreSQL
 - Created a script to add the UNIQUE constraint to the email column in the users table
 - Verified that the email column already has the UNIQUE constraint in the PostgreSQL database
+
+### 7. Fixed Client-Side Routing
+- Added a `_redirects` file to the frontend build directory to handle client-side routing
+- This ensures that when users access routes directly (e.g., by typing the URL or refreshing the page), they don't get a "Not Found" error
+- The `_redirects` file tells the server to serve the index.html file for all routes, allowing React Router to handle the routing
 
 ## Deployment
 - All changes were committed and pushed to GitHub
