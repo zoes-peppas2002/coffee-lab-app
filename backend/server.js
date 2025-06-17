@@ -142,6 +142,7 @@ app.post("/test-login", (req, res) => {
 app.use("/api/direct-auth", authRoutes); // Direct auth route
 app.use("/direct-auth", authRoutes); // Also add without /api prefix for compatibility
 app.use("/direct-auth", authRoutes); // Also add without /api prefix for compatibility
+app.use("/direct-auth", authRoutes); // Also add without /api prefix for compatibility
 app.use("/api/users", usersRoutes);
 app.use("/api/stores", storeRoutes);
 app.use("/api/templates", templatesRoutes);
