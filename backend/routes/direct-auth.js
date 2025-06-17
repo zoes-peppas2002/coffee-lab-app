@@ -5,7 +5,7 @@ const router = express.Router();
  * Consolidated login endpoint that checks database for all users
  * Works with both MySQL (local) and PostgreSQL (production)
  */
-router.post('/direct-login', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     // Determine if we're using PostgreSQL or MySQL
     const isPg = process.env.NODE_ENV === 'production';
