@@ -1,13 +1,14 @@
 # Coffee Lab App - Login Fix Summary
 
 ## Problem
-The application was working locally but not on Render. When entering admin credentials on Render, the user was redirected back to the login form.
+The application was working locally but not on Render. When entering admin credentials on Render, the user was redirected back to the login form. Additionally, there was an error message about skipping email constraint in PostgreSQL.
 
 ## Root Causes Identified
 1. **Environment Configuration**: The local `.env` file was set to production mode, causing it to try to use PostgreSQL locally
 2. **API Endpoint Mismatch**: The frontend was trying to access `/api/api/direct-auth` instead of `/api/direct-auth`
 3. **Database Connection Issues**: The PostgreSQL database connection on Render needed proper error handling
 4. **Authentication Route Issues**: The direct-auth.js file needed better logging and fallback mechanisms
+5. **Email Constraint Issue**: The init-db.js file was skipping the email UNIQUE constraint in PostgreSQL
 
 ## Fixes Applied
 
@@ -44,6 +45,11 @@ VITE_NODE_ENV=production
 
 ### 5. Fixed Server Routes
 - Ensured `backend/server.js` correctly imports and uses the direct-auth routes
+
+### 6. Fixed Email Constraint Issue
+- Modified `backend/init-db.js` to properly handle the email UNIQUE constraint in PostgreSQL
+- Created a script to add the UNIQUE constraint to the email column in the users table
+- Verified that the email column already has the UNIQUE constraint in the PostgreSQL database
 
 ## Deployment
 - All changes were committed and pushed to GitHub
