@@ -23,14 +23,29 @@ function pgQuery(query, params = []) {
 
 // Helper function to execute query based on environment
 async function executeQuery(query, params = []) {
-  if (process.env.NODE_ENV === 'production') {
-    // PostgreSQL query
-    const { query: pgSql, params: pgParams } = pgQuery(query, params);
-    const result = await pool.query(pgSql, pgParams);
-    return [result.rows, result.fields];
-  } else {
-    // MySQL query
-    return await pool.query(query, params);
+  try {
+    if (process.env.NODE_ENV === 'production') {
+      // PostgreSQL query
+      const { query: pgSql, params: pgParams } = pgQuery(query, params);
+      console.log('Executing PostgreSQL query:', pgSql);
+      console.log('With parameters:', pgParams);
+      const result = await pool.query(pgSql, pgParams);
+      console.log('PostgreSQL query result:', JSON.stringify(result.rows));
+      return [result.rows, result.fields];
+    } else {
+      // MySQL query
+      console.log('Executing MySQL query:', query);
+      console.log('With parameters:', params);
+      const result = await pool.query(query, params);
+      console.log('MySQL query result:', JSON.stringify(result[0]));
+      return result;
+    }
+  } catch (error) {
+    console.error('Error executing query:', error);
+    console.error('Query was:', query);
+    console.error('Parameters were:', params);
+    console.error('Environment:', process.env.NODE_ENV);
+    throw error;
   }
 }
 
