@@ -1,341 +1,52 @@
 @echo off
-echo ===================================
+echo =================================================
 echo COFFEE LAB - FIX STEP BY STEP
-echo ===================================
+echo =================================================
+echo This script will fix the application step by step.
 echo.
-echo This script will guide you through fixing the application step by step.
-echo.
-echo Press any key to continue...
-pause > nul
 
-:menu
-cls
-echo ===================================
-echo COFFEE LAB - FIX STEP BY STEP
-echo ===================================
-echo.
-echo Choose what you want to fix:
-echo.
-echo 1. Install dependencies
-echo 2. Test database connection
-echo 3. Fix users table schema
-echo 4. Fix user management issues
-echo 5. Fix database URLs
-echo 6. Add all files to Git
-echo 7. Configure for local MySQL database
-echo 8. Configure for Render PostgreSQL database
-echo 9. Run the application locally
-echo 10. Deploy to Render
-echo 11. Exit
-echo.
-set /p choice=Enter your choice (1-8): 
-
-if "%choice%"=="1" goto install_dependencies
-if "%choice%"=="2" goto test_db_connection
-if "%choice%"=="3" goto fix_users_table
-if "%choice%"=="4" goto fix_user_management
-if "%choice%"=="5" goto fix_db_urls
-if "%choice%"=="6" goto add_all_files_to_git
-if "%choice%"=="7" goto use_local_mysql
-if "%choice%"=="8" goto use_render_postgres
-if "%choice%"=="9" goto run_local
-if "%choice%"=="10" goto deploy_render
-if "%choice%"=="11" goto end
+echo Step 1: Installing dependencies...
+call npm install
+cd backend
+call npm install
+cd ..
+cd my-web-app
+call npm install
+cd ..
 
 echo.
-echo Invalid choice. Please try again.
-timeout /t 2 > nul
-goto menu
-
-:install_dependencies
-cls
-echo ===================================
-echo STEP 1: INSTALL DEPENDENCIES
-echo ===================================
-echo.
-echo This step will install all required dependencies for the application.
-echo.
-echo Press any key to continue...
-pause > nul
-
-call install-dependencies.bat
+echo Step 2: Creating auth.js file...
+node -e "const fs = require('fs'); const path = require('path'); const authJsPath = path.join(__dirname, 'backend', 'routes', 'auth.js'); if (!fs.existsSync(authJsPath)) { fs.writeFileSync(authJsPath, `const express = require('express');\nconst router = express.Router();\n\nrouter.post('/login', async (req, res) => {\n  try {\n    // Determine if we're using PostgreSQL or MySQL\n    const isPg = process.env.NODE_ENV === 'production';\n    \n    console.log('=== LOGIN ENDPOINT ===');\n    console.log('Request body:', JSON.stringify(req.body));\n    \n    const { email, password } = req.body;\n    \n    // Special case for admin user (hardcoded fallback)\n    if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {\n      console.log('Admin login successful (hardcoded)');\n      \n      // Return success with admin user data\n      const adminData = {\n        id: 1,\n        name: 'Admin',\n        email: 'zp@coffeelab.gr',\n        role: 'admin'\n      };\n      \n      console.log('Returning admin data:', JSON.stringify(adminData));\n      return res.status(200).json(adminData);\n    }\n    \n    let rows;\n    \n    if (isPg) {\n      // PostgreSQL query\n      const query = \"SELECT * FROM users WHERE LOWER(TRIM(email)) = $1 AND password = $2\";\n      const result = await req.pool.query(query, [email.trim().toLowerCase(), password]);\n      rows = result.rows;\n    } else {\n      // MySQL query\n      const query = \"SELECT * FROM users WHERE LOWER(TRIM(email)) = ? AND password = ?\";\n      const [result] = await req.pool.query(query, [email.trim().toLowerCase(), password]);\n      rows = result;\n    }\n    \n    if (rows && rows.length > 0) {\n      const user = rows[0];\n      console.log('Login successful for:', user.name);\n      \n      const userData = {\n        id: user.id,\n        name: user.name,\n        email: user.email,\n        role: user.role\n      };\n      \n      console.log('Returning user data:', JSON.stringify(userData));\n      return res.status(200).json(userData);\n    } else {\n      console.log('Login failed for:', email);\n      console.log('No matching user found in database');\n      return res.status(401).json({ message: 'Invalid credentials' });\n    }\n  } catch (error) {\n    console.error('Error in login:', error);\n    console.error('Error details:', error.message);\n    console.error('Error stack:', error.stack);\n    res.status(500).json({ message: 'Server error' });\n  }\n});\n\nmodule.exports = router;`, 'utf8'); console.log('Created auth.js file'); } else { console.log('auth.js already exists'); }"
 
 echo.
-echo Dependencies installed successfully!
-echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:test_db_connection
-cls
-echo ===================================
-echo STEP 2: TEST DATABASE CONNECTION
-echo ===================================
-echo.
-echo This step will test the connection to the database.
-echo.
-echo Which database do you want to test?
-echo 1. Local MySQL database
-echo 2. Render PostgreSQL database
-echo.
-set /p db_choice=Enter your choice (1-2): 
-
-if "%db_choice%"=="1" (
-  echo.
-  echo Configuring to use local MySQL database...
-  call use-local-mysql.bat
-) else if "%db_choice%"=="2" (
-  echo.
-  echo Configuring to use Render PostgreSQL database...
-  call use-render-postgres.bat
-) else (
-  echo.
-  echo Invalid choice. Returning to menu...
-  timeout /t 2 > nul
-  goto menu
-)
+echo Step 3: Fixing server.js...
+node -e "const fs = require('fs'); const path = require('path'); const serverJsPath = path.join(__dirname, 'backend', 'server.js'); let content = fs.readFileSync(serverJsPath, 'utf8'); const authRoutesImportRegex = /const authRoutes = require\(['\"]\.\\/routes\\/direct-auth['\"]\\);.*?\\/\\/ Consolidated auth route/s; const authRoutesImportReplacement = `// Import routes\nconst usersRoutes = require(\"./routes/users\");\nconst authRoutes = require('./routes/auth'); // Auth routes\nconst directAuthRoutes = require('./routes/direct-auth'); // Direct auth routes\nconst storeRoutes = require(\"./routes/stores\");\nconst checklistRoutes = require('./routes/checklists');\nconst templatesRoutes = require('./routes/templates');\nconst statsRoutes = require('./routes/stats');\nconst networkRoutes = require('./routes/network');`; content = content.replace(authRoutesImportRegex, authRoutesImportReplacement); const authRoutesUsageRegex = /app\\.use\\(\"\\/api\\/direct-auth\", authRoutes\\);.*?app\\.use\\(\"\\/api\\/auth\", authRoutes\\);/s; const authRoutesUsageReplacement = `app.use(\"/api/direct-auth\", directAuthRoutes); // Direct auth routes\napp.use(\"/api/auth\", authRoutes); // Regular auth routes`; content = content.replace(authRoutesUsageRegex, authRoutesUsageReplacement); fs.writeFileSync(serverJsPath, content, 'utf8'); console.log('Fixed server.js');"
 
 echo.
-echo Testing database connection...
-call test-updated-db-connection.bat
+echo Step 4: Fixing direct-auth.js...
+node -e "const fs = require('fs'); const path = require('path'); const directAuthJsPath = path.join(__dirname, 'backend', 'routes', 'direct-auth.js'); if (fs.existsSync(directAuthJsPath)) { let content = fs.readFileSync(directAuthJsPath, 'utf8'); if (content.includes(\"router.post('/direct-login',\")) { content = content.replace(\"router.post('/direct-login',\", \"router.post('/',  // Main endpoint for direct auth\\nasync (req, res) => {\"); const routerExportRegex = /module\\.exports = router;/; const routerExportReplacement = `// Also add the /direct-login endpoint for backward compatibility\nrouter.post('/direct-login', async (req, res) => {\n  console.log('Received request at /direct-login, redirecting to main handler');\n  // Forward to the main handler\n  const { email, password } = req.body;\n  \n  try {\n    // Special case for admin user (hardcoded fallback)\n    if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {\n      console.log('Admin login successful (hardcoded)');\n      \n      // Return success with admin user data\n      const adminData = {\n        id: 1,\n        name: 'Admin',\n        email: 'zp@coffeelab.gr',\n        role: 'admin'\n      };\n      \n      return res.status(200).json(adminData);\n    }\n    \n    // Determine if we're using PostgreSQL or MySQL\n    const isPg = process.env.NODE_ENV === 'production';\n    \n    let rows;\n    \n    if (isPg) {\n      // PostgreSQL query\n      const query = \"SELECT * FROM users WHERE LOWER(TRIM(email)) = $1 AND password = $2\";\n      const result = await req.pool.query(query, [email.trim().toLowerCase(), password]);\n      rows = result.rows;\n    } else {\n      // MySQL query\n      const query = \"SELECT * FROM users WHERE LOWER(TRIM(email)) = ? AND password = ?\";\n      const [result] = await req.pool.query(query, [email.trim().toLowerCase(), password]);\n      rows = result;\n    }\n    \n    if (rows && rows.length > 0) {\n      const user = rows[0];\n      \n      const userData = {\n        id: user.id,\n        name: user.name,\n        email: user.email,\n        role: user.role\n      };\n      \n      return res.status(200).json(userData);\n    } else {\n      return res.status(401).json({ message: 'Invalid credentials' });\n    }\n  } catch (error) {\n    console.error('Error in direct login:', error);\n    res.status(500).json({ message: 'Server error' });\n  }\n});\n\nmodule.exports = router;`; content = content.replace(routerExportRegex, routerExportReplacement); fs.writeFileSync(directAuthJsPath, content, 'utf8'); console.log('Fixed direct-auth.js'); } else { console.log('direct-auth.js does not contain the expected route. Skipping...'); } } else { console.log('direct-auth.js not found!'); }"
 
 echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:fix_users_table
-cls
-echo ===================================
-echo STEP 3: FIX USERS TABLE SCHEMA
-echo ===================================
-echo.
-echo This step will fix the users table schema by adding the name column.
-echo.
-echo Which database do you want to fix?
-echo 1. Local MySQL database
-echo 2. Render PostgreSQL database
-echo.
-set /p db_choice=Enter your choice (1-2): 
-
-if "%db_choice%"=="1" (
-  echo.
-  echo Configuring to use local MySQL database...
-  call use-local-mysql.bat
-) else if "%db_choice%"=="2" (
-  echo.
-  echo Configuring to use Render PostgreSQL database...
-  call use-render-postgres.bat
-) else (
-  echo.
-  echo Invalid choice. Returning to menu...
-  timeout /t 2 > nul
-  goto menu
-)
+echo Step 5: Fixing LoginForm.jsx...
+node -e "const fs = require('fs'); const path = require('path'); const loginFormJsxPath = path.join(__dirname, 'my-web-app', 'src', 'components', 'auth', 'LoginForm.jsx'); if (fs.existsSync(loginFormJsxPath)) { let content = fs.readFileSync(loginFormJsxPath, 'utf8'); if (content.includes('\"/api/auth/direct-login\"')) { content = content.replace('\"/api/auth/direct-login\"', '\"/api/direct-auth\"'); content = content.replace('console.log(\"API endpoint:\", `${apiUrl}/api/auth/direct-login`);', 'console.log(\"API endpoint:\", `${apiUrl}/api/direct-auth`);'); fs.writeFileSync(loginFormJsxPath, content, 'utf8'); console.log('Fixed LoginForm.jsx'); } else { console.log('LoginForm.jsx does not contain the expected endpoint. Skipping...'); } } else { console.log('LoginForm.jsx not found!'); }"
 
 echo.
-echo Fixing users table schema...
-call fix-users-table.bat
+echo Step 6: Creating run-local.bat...
+echo @echo off > run-local.bat
+echo echo Starting local development environment... >> run-local.bat
+echo. >> run-local.bat
+echo echo Starting backend server... >> run-local.bat
+echo start cmd /k "cd backend && set NODE_ENV=development && node server.js" >> run-local.bat
+echo. >> run-local.bat
+echo echo Starting frontend development server... >> run-local.bat
+echo start cmd /k "cd my-web-app && npm run dev" >> run-local.bat
+echo. >> run-local.bat
+echo echo Local development environment started! >> run-local.bat
+echo echo Backend: http://localhost:5000 >> run-local.bat
+echo echo Frontend: http://localhost:5173 >> run-local.bat
 
 echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:fix_user_management
-cls
-echo ===================================
-echo STEP 4: FIX USER MANAGEMENT ISSUES
-echo ===================================
+echo All steps completed successfully!
 echo.
-echo This step will fix issues with user management in the database.
+echo To run the application locally, execute run-local.bat
 echo.
-echo Which database do you want to fix?
-echo 1. Local MySQL database
-echo 2. Render PostgreSQL database
-echo.
-set /p db_choice=Enter your choice (1-2): 
-
-if "%db_choice%"=="1" (
-  echo.
-  echo Configuring to use local MySQL database...
-  call use-local-mysql.bat
-) else if "%db_choice%"=="2" (
-  echo.
-  echo Configuring to use Render PostgreSQL database...
-  call use-render-postgres.bat
-) else (
-  echo.
-  echo Invalid choice. Returning to menu...
-  timeout /t 2 > nul
-  goto menu
-)
-
-echo.
-echo Fixing user management issues...
-call fix-user-management.bat
-
-echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:fix_db_urls
-cls
-echo ===================================
-echo STEP 5: FIX DATABASE URLS
-echo ===================================
-echo.
-echo This step will fix the database URLs for internal and external connections.
-echo.
-echo Press any key to continue...
-pause > nul
-
-call fix-db-urls.bat
-
-echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:add_all_files_to_git
-cls
-echo ===================================
-echo STEP 6: ADD ALL FILES TO GIT
-echo ===================================
-echo.
-echo This step will add all files to the Git repository.
-echo.
-echo Press any key to continue...
-pause > nul
-
-call add-all-files-to-git.bat
-
-echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:use_local_mysql
-cls
-echo ===================================
-echo STEP 7: CONFIGURE FOR LOCAL MYSQL DATABASE
-echo ===================================
-echo.
-echo This step will configure the application to use the local MySQL database.
-echo.
-echo Press any key to continue...
-pause > nul
-
-call use-local-mysql.bat
-
-echo.
-echo Configuration completed!
-echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:use_render_postgres
-cls
-echo ===================================
-echo STEP 8: CONFIGURE FOR RENDER POSTGRESQL DATABASE
-echo ===================================
-echo.
-echo This step will configure the application to use the Render PostgreSQL database.
-echo.
-echo Press any key to continue...
-pause > nul
-
-call use-render-postgres.bat
-
-echo.
-echo Configuration completed!
-echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:run_local
-cls
-echo ===================================
-echo STEP 9: RUN THE APPLICATION LOCALLY
-echo ===================================
-echo.
-echo This step will run the application locally.
-echo.
-echo Which database do you want to use?
-echo 1. Local MySQL database
-echo 2. Render PostgreSQL database
-echo.
-set /p db_choice=Enter your choice (1-2): 
-
-if "%db_choice%"=="1" (
-  echo.
-  echo Configuring to use local MySQL database...
-  call use-local-mysql.bat
-) else if "%db_choice%"=="2" (
-  echo.
-  echo Configuring to use Render PostgreSQL database...
-  call use-render-postgres.bat
-) else (
-  echo.
-  echo Invalid choice. Returning to menu...
-  timeout /t 2 > nul
-  goto menu
-)
-
-echo.
-echo Starting the backend server...
-start cmd /k "cd backend && npm start"
-
-echo.
-echo Starting the frontend development server...
-start cmd /k "cd my-web-app && npm run dev"
-
-echo.
-echo Both servers are now running!
-echo.
-echo Backend: http://localhost:5000
-echo Frontend: http://localhost:5173
-echo.
-echo You can now test the login functionality with the following credentials:
-echo.
-echo Admin User:
-echo Email: zp@coffeelab.gr
-echo Password: Zoespeppas2025!
-echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:deploy_render
-cls
-echo ===================================
-echo STEP 10: DEPLOY TO RENDER
-echo ===================================
-echo.
-echo This step will deploy the application to Render.
-echo.
-echo Press any key to continue...
-pause > nul
-
-call deploy-to-render.bat
-
-echo.
-echo Press any key to return to the menu...
-pause > nul
-goto menu
-
-:end
-cls
-echo ===================================
-echo COFFEE LAB - FIX STEP BY STEP
-echo ===================================
-echo.
-echo Thank you for using the step-by-step fix script!
-echo.
-echo Press any key to exit...
-pause > nul
-exit

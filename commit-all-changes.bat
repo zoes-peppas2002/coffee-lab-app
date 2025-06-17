@@ -1,31 +1,26 @@
 @echo off
-echo ===================================
+echo =================================================
 echo COFFEE LAB - COMMIT ALL CHANGES
-echo ===================================
+echo =================================================
+echo This script will commit all changes to the Git repository.
 echo.
-echo This script will commit and push all changes to both frontend and backend repositories.
-echo.
-echo Press any key to continue...
-pause > nul
+
+echo Please enter a commit message:
+set /p COMMIT_MESSAGE=Commit message: 
 
 echo.
-echo Step 1: Committing and pushing changes to the frontend repository...
-cd my-web-app
+echo Adding all files to Git...
 git add .
-git commit -m "Update frontend configuration and fix login issues"
-git push
-cd ..
 
 echo.
-echo Step 2: Committing and pushing changes to the backend repository...
-cd backend
-git add .
-git commit -m "Update database connection details and fix login issues"
+echo Committing changes...
+git commit -m "%COMMIT_MESSAGE%"
+
+echo.
+echo Pushing changes to remote repository...
 git push
-cd ..
 
 echo.
 echo All changes have been committed and pushed!
 echo.
-echo Press any key to exit...
-pause > nul
+pause
