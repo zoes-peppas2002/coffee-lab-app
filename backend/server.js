@@ -275,6 +275,32 @@ app.post('/fallback-admin-login', (req, res) => {
   return res.status(401).json({ message: 'Invalid credentials' });
 });
 
+// Special fallback route for direct admin login
+app.post('/fallback-admin-login', (req, res) => {
+  console.log('=== FALLBACK ADMIN LOGIN ENDPOINT ===');
+  console.log('Request body:', JSON.stringify(req.body));
+  
+  const { email, password } = req.body;
+  
+  // Only allow admin login through this endpoint
+  if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
+    console.log('Admin login successful (fallback endpoint)');
+    
+    // Return success with admin user data
+    const adminData = {
+      id: 1,
+      name: 'Admin',
+      email: 'zp@coffeelab.gr',
+      role: 'admin'
+    };
+    
+    console.log('Returning admin data:', JSON.stringify(adminData));
+    return res.status(200).json(adminData);
+  }
+  
+  return res.status(401).json({ message: 'Invalid credentials' });
+});
+
 // Serve frontend static files in production
 if (process.env.NODE_ENV === 'production') {
   console.log('Serving frontend static files from:', FRONTEND_BUILD_PATH);

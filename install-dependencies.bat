@@ -1,31 +1,13 @@
 @echo off
-echo ===================================
-echo COFFEE LAB - INSTALL DEPENDENCIES
-echo ===================================
-echo.
-echo This script will install the required dependencies for the application.
-echo.
-echo Press any key to continue...
-pause > nul
+echo ===== COFFEE LAB - INSTALL DEPENDENCIES =====
+echo This script will install all required dependencies
 
 echo.
-echo Installing dependencies for the root project...
-npm install dotenv pg
+echo Running installation script...
+node install-dependencies.js
 
 echo.
-echo Installing dependencies for the backend...
-cd backend
-npm install
-cd ..
-
+echo Installation completed!
 echo.
-echo Installing dependencies for the frontend...
-cd my-web-app
-npm install
-cd ..
-
-echo.
-echo All dependencies have been installed!
-echo.
-echo Press any key to exit...
+echo Press any key to continue . . .
 pause > nul

@@ -90,6 +90,8 @@ test-login-endpoints.bat
 - **fix-render-deployment.bat**: Batch file για εκτέλεση του script και deployment
 - **test-login-endpoints.js**: Script για δοκιμή όλων των endpoints σύνδεσης
 - **test-login-endpoints.bat**: Batch file για εκτέλεση του test script
+- **install-dependencies.js**: Script για εγκατάσταση των απαραίτητων πακέτων (axios, pg)
+- **install-dependencies.bat**: Batch file για εκτέλεση του installation script
 - **fix-render-login-and-deploy.bat**: Συνδυασμένο script για διόρθωση και deployment
 - **render-deployment-fix-summary.md**: Λεπτομερής περιγραφή των διορθώσεων
 - **my-web-app/src/utils/fallbackLogin.js**: Utility για εγγυημένη σύνδεση admin

@@ -3,11 +3,15 @@ echo ===== COFFEE LAB - FIX RENDER LOGIN AND DEPLOY =====
 echo This script will fix all login issues and deploy to Render
 
 echo.
-echo Step 1: Running the fix-render-deployment script...
+echo Step 1: Installing required dependencies...
+call install-dependencies.bat
+
+echo.
+echo Step 2: Running the fix-render-deployment script...
 call fix-render-deployment.bat
 
 echo.
-echo Step 2: Testing login endpoints...
+echo Step 3: Testing login endpoints...
 call test-login-endpoints.bat
 
 echo.
