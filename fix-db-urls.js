@@ -22,8 +22,8 @@ const filesToUpdate = [
 ];
 
 // Define the correct URLs
-const externalUrl = "postgresql://coffee_lab_user:JZBtkeHcgpITKIKBJj6Dw7M4eAIMgh2r@dpg-d17f1iemcj7s73d4rhb0-a.frankfurt-postgres.render.com/coffee_lab_db_lyf9";
-const internalUrl = "postgresql://coffee_lab_user:JZBtkeHcgpITKIKBJj6Dw7M4eAIMgh2r@dpg-d17f1iemcj7s73d4rhb0-a/coffee_lab_db_lyf9";
+const externalUrl = "postgresql://coffee_lab_user:jz5x00jzGHaKyrqDWehqfsCu6vRb688b@dpg-d18qgkruibrs73duejs0-a.frankfurt-postgres.render.com/coffee_lab_db_dldc";
+const internalUrl = "postgresql://coffee_lab_user:jz5x00jzGHaKyrqDWehqfsCu6vRb688b@dpg-d18qgkruibrs73duejs0-a/coffee_lab_db_dldc";
 
 // Function to update the files
 function updateFiles() {

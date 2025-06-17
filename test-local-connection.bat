@@ -1,8 +1,8 @@
 @echo off
 echo =================================================
-echo COFFEE LAB - MIGRATE DATA TO RENDER
+echo COFFEE LAB - TEST LOCAL MYSQL CONNECTION
 echo =================================================
-echo This script will migrate data from the local MySQL database to the Render PostgreSQL database.
+echo This script will test the connection to the local MySQL database.
 echo.
 
 echo Checking if Node.js is installed...
@@ -14,24 +14,19 @@ if %errorlevel% neq 0 (
   exit /b 1
 )
 
-echo Checking if required packages are installed...
+echo Checking if mysql2 package is installed...
 cd backend
 if not exist node_modules\mysql2 (
   echo Installing mysql2 package...
   npm install mysql2 --save
 )
-
-if not exist node_modules\pg (
-  echo Installing pg package...
-  npm install pg --save
-)
 cd ..
 
 echo.
-echo Running migration script...
-node migrate-data-to-render.js
+echo Running connection test...
+node test-local-connection.js
 
 echo.
-echo Migration completed!
+echo Test completed!
 echo.
 pause

@@ -11,7 +11,7 @@ pause > nul
 echo.
 echo Step 1: Setting NODE_ENV to production in backend/.env...
 echo NODE_ENV=production > backend/.env.tmp
-echo DATABASE_URL=postgresql://coffee_lab_user:JZBtkeHcgpITKIKBJj6Dw7M4eAIMgh2r@dpg-d17f1iemcj7s73d4rhb0-a.frankfurt-postgres.render.com/coffee_lab_db_lyf9 >> backend/.env.tmp
+echo DATABASE_URL=postgresql://coffee_lab_user:jz5x00jzGHaKyrqDWehqfsCu6vRb688b@dpg-d18qgkruibrs73duejs0-a.frankfurt-postgres.render.com/coffee_lab_db_dldc >> backend/.env.tmp
 echo PORT=5000 >> backend/.env.tmp
 move /y backend\.env.tmp backend\.env
 

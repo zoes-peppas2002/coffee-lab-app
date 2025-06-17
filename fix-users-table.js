@@ -17,12 +17,12 @@ console.log('');
 const connectionOptions = [
   {
     name: "Render PostgreSQL (External)",
-    url: "postgresql://coffee_lab_user:JZBtkeHcgpITKIKBJj6Dw7M4eAIMgh2r@dpg-d17f1iemcj7s73d4rhb0-a/coffee_lab_db_lyf9",
+    url: "postgresql://coffee_lab_user:jz5x00jzGHaKyrqDWehqfsCu6vRb688b@dpg-d18qgkruibrs73duejs0-a/coffee_lab_db_dldc",
     ssl: { rejectUnauthorized: false }
   },
   {
     name: "Render PostgreSQL (Internal)",
-    url: "postgresql://coffee_lab_user:JZBtkeHcgpITKIKBJj6Dw7M4eAIMgh2r@dpg-d17f1iemcj7s73d4rhb0-a/coffee_lab_db_lyf9",
+    url: "postgresql://coffee_lab_user:jz5x00jzGHaKyrqDWehqfsCu6vRb688b@dpg-d18qgkruibrs73duejs0-a/coffee_lab_db_dldc",
     ssl: { rejectUnauthorized: false }
   }
 ];
