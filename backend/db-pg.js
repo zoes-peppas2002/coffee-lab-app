@@ -1,7 +1,7 @@
 const { Pool } = require('pg');
 
 // Get the DATABASE_URL from environment variables
-const databaseUrl = process.env.DATABASE_URL || 'postgresql://coffee_lab_user:JZBtkeHcgpITKIKBj6Dw7M4eAIMgh2r@dpg-d17fiiemcj7s73d4rhb0-a/coffee_lab_db_lyf9';
+const databaseUrl = process.env.DATABASE_URL || 'postgresql://coffee_lab_user:JZBtkeHcgpITKIKBJj6Dw7M4eAIMgh2r@dpg-d17f1iemcj7s73d4rhb0-a.frankfurt-postgres.render.com/coffee_lab_db_lyf9';
 
 // Create a new pool using the connection string
 const pool = new Pool({
