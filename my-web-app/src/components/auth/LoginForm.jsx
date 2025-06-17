@@ -32,7 +32,7 @@ const LoginForm = () => {
     console.log("Email:", email.trim().toLowerCase());
     console.log("Password length:", password.trim().length);
     console.log("API URL:", apiUrl);
-    console.log("API endpoint:", `${apiUrl}/api/direct-auth`);
+    console.log("API endpoint:", `${apiUrl}/direct-auth`);
     
     // Use the consolidated login endpoint
     const loginData = {
@@ -43,7 +43,7 @@ const LoginForm = () => {
     
     setDebugInfo(prev => prev + `\nΑποστολή δεδομένων: ${JSON.stringify(loginData)}`);
     
-    const response = await api.post("/api/direct-auth", loginData);
+    const response = await api.post("/direct-auth", loginData);
 
     const user = response.data;
     console.log("LOGIN USER DATA:", user);
