@@ -40,7 +40,7 @@ const networkRoutes = require('./routes/network');`;
   content = content.replace(authRoutesImportRegex, authRoutesImportReplacement);
   
   // Fix the auth routes usage
-  const authRoutesUsageRegex = /app\.use\("\/api\/direct-auth", authRoutes\);.*?app\.use\("\/api\/auth", authRoutes\);/s;
+  const authRoutesUsageRegex = /app\.use\("\/api\/direct-auth", authRoutes\);[\s\S]*?app\.use\("\/api\/auth", authRoutes\);/;
   const authRoutesUsageReplacement = `app.use("/api/direct-auth", directAuthRoutes); // Direct auth routes
 app.use("/api/auth", authRoutes); // Regular auth routes`;
   
@@ -171,8 +171,8 @@ function fixLoginFormJsx() {
     
     // Update the debug info
     content = content.replace(
-      'console.log("API endpoint:", `${apiUrl}/api/auth/direct-login`);',
-      'console.log("API endpoint:", `${apiUrl}/api/direct-auth`);'
+      'console.log("API endpoint:", "${apiUrl}/api/auth/direct-login");',
+      'console.log("API endpoint:", "${apiUrl}/api/direct-auth");'
     );
     
     // Write the updated content back to the file
@@ -326,7 +326,7 @@ router.get("/all", async (req, res) => {
     
     // Log each template
     rows.forEach((template, index) => {
-      console.log(\`Template \${index + 1}:\`, {
+      console.log("Template " + (index + 1) + ":", {
         id: template.id,
         role: template.role,
         created_at: template.created_at,
@@ -653,31 +653,15 @@ router.get("/", async (req, res) => {
     let rows;
     if (isPg) {
       // PostgreSQL query
-      const result = await req.pool.query(\`
-        SELECT 
-          s.id,
-          s.name,
-          s.area_manager,
-          s.coffee_specialist
-        FROM 
-          network_stores s
-        ORDER BY 
-          s.name
-      \`);
+      const result = await req.pool.query(
+        "SELECT s.id, s.name, s.area_manager, s.coffee_specialist FROM network_stores s ORDER BY s.name"
+      );
       rows = result.rows;
     } else {
       // MySQL query
-      const [result] = await req.pool.query(\`
-        SELECT 
-          s.id,
-          s.name,
-          s.area_manager,
-          s.coffee_specialist
-        FROM 
-          network_stores s
-        ORDER BY 
-          s.name
-      \`);
+      const [result] = await req.pool.query(
+        "SELECT s.id, s.name, s.area_manager, s.coffee_specialist FROM network_stores s ORDER BY s.name"
+      );
       rows = result;
     }
     
@@ -797,3 +781,17 @@ router.post("/", async (req, res) => {
     
     // Αν έχει οριστεί area_manager, δημιουργούμε εγγραφή στον πίνακα stores
     if (area_manager) {
+      console.log("Creating store entry for area manager");
+    }
+    
+    res.status(201).json({ 
+      message: "Store added successfully", 
+      id: isPg ? result.rows[0].id : result.rows[0].id 
+    });
+  } catch (err) {
+    console.error("Error adding store:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+module.exports = router;

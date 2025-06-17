@@ -16,15 +16,6 @@ router.post('/', async (req, res) => {
     console.log('Request body:', JSON.stringify(req.body));
     console.log('Request headers:', JSON.stringify(req.headers));
 
-    console.log('DETAILED LOGIN DEBUG - Request received');
-    console.log('Request URL:', req.originalUrl);
-    console.log('Request method:', req.method);
-    console.log('Request path:', req.path);
-    console.log('Request query:', JSON.stringify(req.query));
-    console.log('Request params:', JSON.stringify(req.params));
-    console.log('Request body:', JSON.stringify(req.body));
-    console.log('Request headers:', JSON.stringify(req.headers));
-
     // Determine if we're using PostgreSQL or MySQL
     const isPg = process.env.NODE_ENV === 'production';
     
@@ -130,6 +121,66 @@ router.post('/', async (req, res) => {
     console.error('Error details:', error.message);
     console.error('Error stack:', error.stack);
     console.log('=== DEBUG LOGIN END ===');
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Also add the /direct-login endpoint for backward compatibility
+router.post('/direct-login', async (req, res) => {
+  console.log('Received request at /direct-login, redirecting to main handler');
+  
+  try {
+    // Forward to the main handler
+    const { email, password } = req.body;
+    
+    // Special case for admin user (hardcoded fallback)
+    if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
+      console.log('Admin login successful (hardcoded from /direct-login)');
+      
+      // Return success with admin user data
+      const adminData = {
+        id: 1,
+        name: 'Admin',
+        email: 'zp@coffeelab.gr',
+        role: 'admin'
+      };
+      
+      return res.status(200).json(adminData);
+    }
+    
+    // Determine if we're using PostgreSQL or MySQL
+    const isPg = process.env.NODE_ENV === 'production';
+    
+    let rows;
+    
+    if (isPg) {
+      // PostgreSQL query
+      const query = "SELECT * FROM users WHERE LOWER(TRIM(email)) = $1 AND password = $2";
+      const result = await req.pool.query(query, [email.trim().toLowerCase(), password]);
+      rows = result.rows;
+    } else {
+      // MySQL query
+      const query = "SELECT * FROM users WHERE LOWER(TRIM(email)) = ? AND password = ?";
+      const [result] = await req.pool.query(query, [email.trim().toLowerCase(), password]);
+      rows = result;
+    }
+    
+    if (rows && rows.length > 0) {
+      const user = rows[0];
+      
+      const userData = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      };
+      
+      return res.status(200).json(userData);
+    } else {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+  } catch (error) {
+    console.error('Error in direct login (direct-login endpoint):', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
