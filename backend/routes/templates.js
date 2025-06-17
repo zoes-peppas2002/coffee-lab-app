@@ -1,10 +1,43 @@
 const express = require("express");
 const router = express.Router();
 
+// Get the appropriate pool based on environment
+let pool;
+if (process.env.NODE_ENV === 'production') {
+  pool = require("../db-pg");
+  console.log('Templates route using PostgreSQL database');
+} else {
+  pool = require("../db");
+  console.log('Templates route using MySQL database');
+}
+
+// Helper function to convert MySQL-style queries to PostgreSQL-style
+function pgQuery(query, params = []) {
+  // Replace ? with $1, $2, etc.
+  let pgQuery = query;
+  let paramCount = 0;
+  pgQuery = pgQuery.replace(/\?/g, () => `$${++paramCount}`);
+  
+  return { query: pgQuery, params };
+}
+
+// Helper function to execute query based on environment
+async function executeQuery(query, params = []) {
+  if (process.env.NODE_ENV === 'production') {
+    // PostgreSQL query
+    const { query: pgSql, params: pgParams } = pgQuery(query, params);
+    const result = await pool.query(pgSql, pgParams);
+    return [result.rows, result.fields];
+  } else {
+    // MySQL query
+    return await pool.query(query, params);
+  }
+}
+
 // Test endpoint to check database connection
 router.get("/test-db", async (req, res) => {
   try {
-    const [result] = await req.pool.query("SELECT 1 as test");
+    const [result] = await executeQuery("SELECT 1 as test");
     console.log("Database connection test result:", result);
     res.json({ success: true, message: "Database connection successful", result });
   } catch (err) {
@@ -16,7 +49,19 @@ router.get("/test-db", async (req, res) => {
 // Test endpoint to check table structure
 router.get("/test-table", async (req, res) => {
   try {
-    const [columns] = await req.pool.query("SHOW COLUMNS FROM checklist_templates");
+    let columns;
+    if (process.env.NODE_ENV === 'production') {
+      // PostgreSQL query
+      const [result] = await executeQuery(
+        "SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'checklist_templates'"
+      );
+      columns = result;
+    } else {
+      // MySQL query
+      const [result] = await executeQuery("SHOW COLUMNS FROM checklist_templates");
+      columns = result;
+    }
+    
     console.log("Table structure:", columns);
     
     // Try to insert a test record
@@ -24,7 +69,7 @@ router.get("/test-table", async (req, res) => {
       const testRole = 'area_manager';
       const testData = JSON.stringify([{name: 'Test Category', weight: '0.5', subcategories: [{name: 'Test Subcategory', critical: false}]}]);
       
-      await req.pool.query(
+      await executeQuery(
         "INSERT INTO checklist_templates (role, template_data) VALUES (?, ?)",
         [testRole, testData]
       );
@@ -72,7 +117,7 @@ router.get("/force-insert", async (req, res) => {
     console.log("JSON data:", testData);
     
     // Insert directly into the database
-    const [result] = await req.pool.query(
+    const [result] = await executeQuery(
       "INSERT INTO checklist_templates (role, template_data) VALUES (?, ?)",
       [testRole, testData]
     );
@@ -80,7 +125,7 @@ router.get("/force-insert", async (req, res) => {
     console.log("Force insert result:", result);
     
     // Check if the record was inserted
-    const [records] = await req.pool.query(
+    const [records] = await executeQuery(
       "SELECT * FROM checklist_templates ORDER BY id DESC LIMIT 1"
     );
     
@@ -130,16 +175,10 @@ router.post("/", async (req, res) => {
     console.log("Attempting to save with role:", role);
     console.log("SQL: INSERT INTO checklist_templates (role, template_data) VALUES (?, ?)", [role, JSON.stringify(categories)]);
     
-    // Check if the pool is available
-    if (!req.pool) {
-      console.error("Database pool is not available");
-      return res.status(500).json({ error: "Database connection error" });
-    }
-    
-    const result = await req.pool.query(
+    const result = await executeQuery(
         "INSERT INTO checklist_templates (role, template_data) VALUES (?, ?)",
         [role, JSON.stringify(categories)]
-        );
+    );
     
     console.log("Query result:", result);
     console.log("Template saved successfully");
@@ -164,7 +203,7 @@ router.get("/all", async (req, res) => {
   console.log("GET /api/templates/all - Request received");
   try {
     console.log("Executing query: SELECT * FROM checklist_templates ORDER BY created_at DESC");
-    const [rows] = await req.pool.query(
+    const [rows] = await executeQuery(
       "SELECT * FROM checklist_templates ORDER BY created_at DESC"
     );
     console.log("Query result:", rows);
@@ -191,7 +230,7 @@ router.get("/all", async (req, res) => {
 router.get("/latest", async (req, res) => {
   const { role } = req.query;
   try {
-    const [rows] = await req.pool.query(
+    const [rows] = await executeQuery(
       "SELECT * FROM checklist_templates WHERE role = ? ORDER BY created_at DESC LIMIT 1",
       [role]
     );
@@ -207,11 +246,10 @@ router.get("/latest", async (req, res) => {
 
 // ΝΕΟ GET template βάσει ρόλου
 router.get("/", async (req, res) => {
-  const pool = req.pool;
   const { role } = req.query;
 
   try {
-    const [rows] = await pool.query(
+    const [rows] = await executeQuery(
       "SELECT * FROM checklist_templates WHERE role = ? ORDER BY created_at DESC LIMIT 1",
       [role]
     );
@@ -236,7 +274,7 @@ router.get("/:id", async (req, res) => {
   
   try {
     console.log("Executing query: SELECT * FROM checklist_templates WHERE id = ?", [id]);
-    const [rows] = await req.pool.query(
+    const [rows] = await executeQuery(
       "SELECT * FROM checklist_templates WHERE id = ?",
       [id]
     );
@@ -303,7 +341,7 @@ router.put("/:id", async (req, res) => {
   }
   
   try {
-    const [result] = await req.pool.query(
+    const [result] = await executeQuery(
       "UPDATE checklist_templates SET role = ?, template_data = ? WHERE id = ?",
       [role, JSON.stringify(categories), id]
     );
@@ -330,7 +368,7 @@ router.delete("/:id", async (req, res) => {
   try {
     // First check if the template exists
     console.log("Checking if template exists: SELECT id FROM checklist_templates WHERE id = ?", [id]);
-    const [checkRows] = await req.pool.query(
+    const [checkRows] = await executeQuery(
       "SELECT id FROM checklist_templates WHERE id = ?",
       [id]
     );
@@ -343,7 +381,7 @@ router.delete("/:id", async (req, res) => {
     console.log("Template found, proceeding with deletion");
     console.log("Executing query: DELETE FROM checklist_templates WHERE id = ?", [id]);
     
-    const [result] = await req.pool.query(
+    const [result] = await executeQuery(
       "DELETE FROM checklist_templates WHERE id = ?",
       [id]
     );

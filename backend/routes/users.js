@@ -1,11 +1,43 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db");
+
+// Get the appropriate pool based on environment
+let pool;
+if (process.env.NODE_ENV === 'production') {
+  pool = require("../db-pg");
+  console.log('Users route using PostgreSQL database');
+} else {
+  pool = require("../db");
+  console.log('Users route using MySQL database');
+}
+
+// Helper function to convert MySQL-style queries to PostgreSQL-style
+function pgQuery(query, params = []) {
+  // Replace ? with $1, $2, etc.
+  let pgQuery = query;
+  let paramCount = 0;
+  pgQuery = pgQuery.replace(/\?/g, () => `$${++paramCount}`);
+  
+  return { query: pgQuery, params };
+}
+
+// Helper function to execute query based on environment
+async function executeQuery(query, params = []) {
+  if (process.env.NODE_ENV === 'production') {
+    // PostgreSQL query
+    const { query: pgSql, params: pgParams } = pgQuery(query, params);
+    const result = await pool.query(pgSql, pgParams);
+    return [result.rows, result.fields];
+  } else {
+    // MySQL query
+    return await pool.query(query, params);
+  }
+}
 
 // GET: Φέρνουμε όλους τους χρήστες
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await pool.query("SELECT id, name, email, role, password FROM users");
+    const [rows] = await executeQuery("SELECT id, name, email, role, password FROM users");
     res.json(rows);
   } catch (err) {
     console.error("Error fetching users:", err);
@@ -17,7 +49,7 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const { name, email, password, role } = req.body;
   try {
-    await pool.query(
+    await executeQuery(
       "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
       [name, email, password, role]
     );
@@ -33,7 +65,7 @@ router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const { name, email, password, role } = req.body;
   try {
-    await pool.query(
+    await executeQuery(
       "UPDATE users SET name = ?, email = ?, password = ?, role = ? WHERE id = ?",
       [name, email, password, role, id]
     );
@@ -48,7 +80,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const userId = req.params.id;
   try {
-    await pool.query("DELETE FROM users WHERE id = ?", [userId]);
+    await executeQuery("DELETE FROM users WHERE id = ?", [userId]);
     res.json({ message: "User deleted" });
   } catch (err) {
     console.error("Error deleting user:", err);
@@ -60,7 +92,7 @@ router.delete("/:id", async (req, res) => {
 router.get("/by-role/:role", async (req, res) => {
   const { role } = req.params;
   try {
-    const [rows] = await pool.query(
+    const [rows] = await executeQuery(
       "SELECT id, name, email, role FROM users WHERE role = ?",
       [role]
     );
@@ -78,7 +110,7 @@ router.post("/login", async (req, res) => {
   try {
     console.log("Received login:", email, password); // 🔍 για debug
 
-    const [rows] = await pool.query(
+    const [rows] = await executeQuery(
       "SELECT * FROM users WHERE LOWER(TRIM(email)) = ? AND password = ?",
       [email.trim().toLowerCase(), password]
     );

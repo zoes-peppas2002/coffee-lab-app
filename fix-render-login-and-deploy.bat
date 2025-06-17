@@ -1,47 +1,37 @@
 @echo off
-echo =================================================
+echo ===================================
 echo COFFEE LAB - FIX RENDER LOGIN AND DEPLOY
-echo =================================================
-echo This script will fix login issues on Render and deploy the application.
+echo ===================================
 echo.
 
-echo Step 1: Fixing login issues on Render...
-node fix-render-login.js
+echo Step 1: Running the fix script...
+node fix-login-and-routes.js
 if %ERRORLEVEL% NEQ 0 (
-  echo Error fixing login issues on Render!
-  pause
-  exit /b 1
+  echo Error running fix script!
+  exit /b %ERRORLEVEL%
 )
-
 echo.
+
 echo Step 2: Committing changes...
-git add .
-git commit -m "Fix login issues on Render"
+call commit-all-changes.bat "Fix login issues for Render deployment"
 if %ERRORLEVEL% NEQ 0 (
   echo Error committing changes!
-  pause
-  exit /b 1
+  exit /b %ERRORLEVEL%
 )
-
 echo.
-echo Step 3: Pushing changes to GitHub...
-git push
+
+echo Step 3: Deploying to Render...
+call deploy-to-render.bat
 if %ERRORLEVEL% NEQ 0 (
-  echo Error pushing changes to GitHub!
-  pause
-  exit /b 1
+  echo Error deploying to Render!
+  exit /b %ERRORLEVEL%
 )
-
-echo.
-echo Step 4: Deploying to Render...
-echo The changes have been pushed to GitHub.
-echo Render will automatically deploy the application.
-echo Please check the Render dashboard for deployment status.
 echo.
 
 echo All steps completed successfully!
-echo Please wait a few minutes for Render to deploy the application.
-echo Then try logging in again.
+echo Please check the Render dashboard for deployment status.
+echo.
+echo For more information, see fix-render-login-summary.md
 echo.
 
 pause

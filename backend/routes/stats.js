@@ -4,9 +4,41 @@ const ExcelJS = require('exceljs');
 const path = require('path');
 const fs = require('fs');
 
+// Get the appropriate pool based on environment
+let pool;
+if (process.env.NODE_ENV === 'production') {
+  pool = require("../db-pg");
+  console.log('Stats route using PostgreSQL database');
+} else {
+  pool = require("../db");
+  console.log('Stats route using MySQL database');
+}
+
+// Helper function to convert MySQL-style queries to PostgreSQL-style
+function pgQuery(query, params = []) {
+  // Replace ? with $1, $2, etc.
+  let pgQuery = query;
+  let paramCount = 0;
+  pgQuery = pgQuery.replace(/\?/g, () => `$${++paramCount}`);
+  
+  return { query: pgQuery, params };
+}
+
+// Helper function to execute query based on environment
+async function executeQuery(query, params = []) {
+  if (process.env.NODE_ENV === 'production') {
+    // PostgreSQL query
+    const { query: pgSql, params: pgParams } = pgQuery(query, params);
+    const result = await pool.query(pgSql, pgParams);
+    return [result.rows, result.fields];
+  } else {
+    // MySQL query
+    return await pool.query(query, params);
+  }
+}
+
 // GET: Top stores by average score for a specific month
 router.get("/top-stores", async (req, res) => {
-  const pool = req.pool;
   const { month, year } = req.query;
 
   if (!month || !year) {
@@ -45,7 +77,7 @@ router.get("/top-stores", async (req, res) => {
         s.name, u.role
     `;
 
-    const [rows] = await pool.query(query, [startDate, endDate]);
+    const [rows] = await executeQuery(query, [startDate, endDate]);
     
     // Process the results to calculate combined average scores
     const storeScores = {};
@@ -113,7 +145,6 @@ router.get("/top-stores", async (req, res) => {
 
 // GET: Export top stores to Excel
 router.get("/export-top-stores", async (req, res) => {
-  const pool = req.pool;
   const { month, year } = req.query;
 
   if (!month || !year) {
@@ -159,7 +190,7 @@ router.get("/export-top-stores", async (req, res) => {
         s.name, u.role
     `;
 
-    const [rows] = await pool.query(query, [startDate, endDate]);
+    const [rows] = await executeQuery(query, [startDate, endDate]);
     
     // Process the results to calculate combined average scores
     const storeScores = {};
@@ -319,7 +350,6 @@ router.get("/export-top-stores", async (req, res) => {
 
 // GET: Top users by role for a specific month
 router.get("/top-users", async (req, res) => {
-  const pool = req.pool;
   const { month, year, role } = req.query;
 
   if (!month || !year) {
@@ -368,7 +398,7 @@ router.get("/top-users", async (req, res) => {
         avg_score DESC
     `;
 
-    const [rows] = await pool.query(query, queryParams);
+    const [rows] = await executeQuery(query, queryParams);
     
     // Process the results
     const result = rows.map(row => ({
@@ -389,7 +419,6 @@ router.get("/top-users", async (req, res) => {
 
 // GET: Top user across all roles for a specific month
 router.get("/top-of-top", async (req, res) => {
-  const pool = req.pool;
   const { month, year } = req.query;
 
   if (!month || !year) {
@@ -428,7 +457,7 @@ router.get("/top-of-top", async (req, res) => {
       LIMIT 1
     `;
 
-    const [rows] = await pool.query(query, [startDate, endDate]);
+    const [rows] = await executeQuery(query, [startDate, endDate]);
     
     if (rows.length === 0) {
       return res.json(null);
@@ -453,7 +482,6 @@ router.get("/top-of-top", async (req, res) => {
 
 // GET: Export top users to Excel
 router.get("/export-top-users", async (req, res) => {
-  const pool = req.pool;
   const { month, year, role } = req.query;
 
   if (!month || !year) {
@@ -509,7 +537,7 @@ router.get("/export-top-users", async (req, res) => {
         avg_score DESC
     `;
 
-    const [rows] = await pool.query(query, queryParams);
+    const [rows] = await executeQuery(query, queryParams);
     
     // Process the results
     const result = rows.map(row => ({
@@ -628,7 +656,6 @@ router.get("/export-top-users", async (req, res) => {
 
 // GET: Export top of top to Excel
 router.get("/export-top-of-top", async (req, res) => {
-  const pool = req.pool;
   const { month, year } = req.query;
 
   if (!month || !year) {
@@ -673,7 +700,7 @@ router.get("/export-top-of-top", async (req, res) => {
       LIMIT 1
     `;
 
-    const [rows] = await pool.query(query, [startDate, endDate]);
+    const [rows] = await executeQuery(query, [startDate, endDate]);
     
     if (rows.length === 0) {
       return res.status(404).json({ error: "No data found for the selected month" });
@@ -742,7 +769,7 @@ router.get("/export-top-of-top", async (req, res) => {
       fgColor: { argb: 'FFD3D3D3' }
     };
     
-    // Query to get all users (excluding omada_krousis for consistency)
+    // Get all users for comparison
     const allUsersQuery = `
       SELECT 
         u.id AS user_id,
@@ -764,41 +791,33 @@ router.get("/export-top-of-top", async (req, res) => {
         avg_score DESC
     `;
     
-    const [allUsers] = await pool.query(allUsersQuery, [startDate, endDate]);
+    const [allUsers] = await executeQuery(allUsersQuery, [startDate, endDate]);
     
-    // Add all users
-    let rowIndex = 13; // Starting row for all users
-    allUsers.forEach((user, index) => {
+    // Add all users to the worksheet
+    allUsers.forEach(user => {
       const row = worksheet.addRow([
-        user.name,
+        user.user_name,
         user.role,
-        `${parseFloat(user.avg_score).toFixed(2)}%`,
+        parseFloat(user.avg_score).toFixed(2) + '%',
         user.checklist_count,
         user.store_count
       ]);
       
       // Highlight the top user
-      if (user.id === topUser.user_id) {
-        row.font = { bold: true };
-        row.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFFFE0' } // Light yellow
-        };
-      } else if (index % 2 === 0) {
+      if (user.user_id === topUser.user_id) {
+        row.eachCell(cell => {
+          cell.font = { bold: true, color: { argb: '28A745' } };
+        });
+      }
+      
+      // Alternate row colors
+      if (worksheet.rowCount % 2 === 0) {
         row.fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: 'FFF9F9F9' }
         };
       }
-      
-      rowIndex++;
-    });
-    
-    // Adjust column widths
-    worksheet.columns.forEach(column => {
-      column.width = 20;
     });
     
     // Create directory if it doesn't exist

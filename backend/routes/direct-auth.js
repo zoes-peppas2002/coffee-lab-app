@@ -1,6 +1,39 @@
 const express = require('express');
 const router = express.Router();
 
+// Get the appropriate pool based on environment
+let pool;
+if (process.env.NODE_ENV === 'production') {
+  pool = require("../db-pg");
+  console.log('Direct-auth route using PostgreSQL database');
+} else {
+  pool = require("../db");
+  console.log('Direct-auth route using MySQL database');
+}
+
+// Helper function to convert MySQL-style queries to PostgreSQL-style
+function pgQuery(query, params = []) {
+  // Replace ? with $1, $2, etc.
+  let pgQuery = query;
+  let paramCount = 0;
+  pgQuery = pgQuery.replace(/\?/g, () => `$${++paramCount}`);
+  
+  return { query: pgQuery, params };
+}
+
+// Helper function to execute query based on environment
+async function executeQuery(query, params = []) {
+  if (process.env.NODE_ENV === 'production') {
+    // PostgreSQL query
+    const { query: pgSql, params: pgParams } = pgQuery(query, params);
+    const result = await pool.query(pgSql, pgParams);
+    return [result.rows, result.fields];
+  } else {
+    // MySQL query
+    return await pool.query(query, params);
+  }
+}
+
 /**
  * Consolidated login endpoint that checks database for all users
  * Works with both MySQL (local) and PostgreSQL (production)
@@ -50,33 +83,15 @@ router.post('/', async (req, res) => {
       return res.status(200).json(adminData);
     }
     console.log(`Using ${isPg ? 'PostgreSQL' : 'MySQL'} for login query`);
-    console.log('Database connection status:', req.pool ? 'Connected' : 'Not connected');
     
     // Check database for users
     try {
-      let rows;
+      const query = "SELECT * FROM users WHERE LOWER(TRIM(email)) = ? AND password = ?";
+      console.log('Query:', query);
+      console.log('Parameters:', [email.trim().toLowerCase(), password]);
       
-      if (isPg) {
-        // PostgreSQL query
-        console.log('Executing PostgreSQL query');
-        const query = "SELECT * FROM users WHERE LOWER(TRIM(email)) = $1 AND password = $2";
-        console.log('Query:', query);
-        console.log('Parameters:', [email.trim().toLowerCase(), password]);
-        
-        const result = await req.pool.query(query, [email.trim().toLowerCase(), password]);
-        rows = result.rows;
-        console.log('PostgreSQL result:', JSON.stringify(rows));
-      } else {
-        // MySQL query
-        console.log('Executing MySQL query');
-        const query = "SELECT * FROM users WHERE LOWER(TRIM(email)) = ? AND password = ?";
-        console.log('Query:', query);
-        console.log('Parameters:', [email.trim().toLowerCase(), password]);
-        
-        const [result] = await req.pool.query(query, [email.trim().toLowerCase(), password]);
-        rows = result;
-        console.log('MySQL result:', JSON.stringify(rows));
-      }
+      const [rows] = await executeQuery(query, [email.trim().toLowerCase(), password]);
+      console.log('Query result:', JSON.stringify(rows));
       
       if (rows && rows.length > 0) {
         const user = rows[0];
@@ -148,36 +163,41 @@ router.post('/direct-login', async (req, res) => {
       return res.status(200).json(adminData);
     }
     
-    // Determine if we're using PostgreSQL or MySQL
-    const isPg = process.env.NODE_ENV === 'production';
-    
-    let rows;
-    
-    if (isPg) {
-      // PostgreSQL query
-      const query = "SELECT * FROM users WHERE LOWER(TRIM(email)) = $1 AND password = $2";
-      const result = await req.pool.query(query, [email.trim().toLowerCase(), password]);
-      rows = result.rows;
-    } else {
-      // MySQL query
+    // Check database for users
+    try {
       const query = "SELECT * FROM users WHERE LOWER(TRIM(email)) = ? AND password = ?";
-      const [result] = await req.pool.query(query, [email.trim().toLowerCase(), password]);
-      rows = result;
-    }
-    
-    if (rows && rows.length > 0) {
-      const user = rows[0];
+      const [rows] = await executeQuery(query, [email.trim().toLowerCase(), password]);
       
-      const userData = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      };
+      if (rows && rows.length > 0) {
+        const user = rows[0];
+        
+        const userData = {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        };
+        
+        return res.status(200).json(userData);
+      } else {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+    } catch (dbError) {
+      console.error('Database error during login:', dbError);
       
-      return res.status(200).json(userData);
-    } else {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      // If database check fails, still allow admin login as a last resort
+      if (email === 'zp@coffeelab.gr' && password === 'Zoespeppas2025!') {
+        console.log('Admin login successful (fallback after DB error)');
+        
+        return res.status(200).json({
+          id: 1,
+          name: 'Admin',
+          email: 'zp@coffeelab.gr',
+          role: 'admin'
+        });
+      }
+      
+      return res.status(500).json({ message: 'Database error during login' });
     }
   } catch (error) {
     console.error('Error in direct login (direct-login endpoint):', error);
