@@ -22,14 +22,19 @@ const FallbackLoginForm = () => {
 
     try {
       // Display debug info
-      const apiUrl = import.meta.env.VITE_API_URL || '/api';
-      setDebugInfo(`Προσπάθεια σύνδεσης στο: ${apiUrl}`);
+      const apiUrl = import.meta.env.VITE_API_URL || '';
+      const baseUrl = window.location.origin;
+      setDebugInfo(`Προσπάθεια σύνδεσης στο: ${baseUrl}`);
       
       // Add more debug info
       console.log("=== FALLBACK LOGIN ATTEMPT DEBUG ===");
       console.log("Email:", email.trim().toLowerCase());
       console.log("Password length:", password.trim().length);
       console.log("API URL:", apiUrl);
+      console.log("Base URL:", baseUrl);
+      console.log("Base URL:", baseUrl);
+      console.log("Base URL:", baseUrl);
+      console.log("Base URL:", baseUrl);
       
       // Try multiple endpoints
       const loginData = {
@@ -39,10 +44,10 @@ const FallbackLoginForm = () => {
       
       setDebugInfo(prev => prev + `\nΑποστολή δεδομένων: ${JSON.stringify(loginData)}`);
       
-      // Try the test-login endpoint first
+      // Try the test-login endpoint first (without /api prefix)
       try {
-        console.log("Trying test-login endpoint");
-        const testResponse = await axios.post(`${apiUrl}/test-login`, loginData);
+        console.log("Trying test-login endpoint without /api prefix");
+        const testResponse = await axios.post(`${baseUrl}/test-login`, loginData);
         console.log("Test login successful:", testResponse.data);
         
         const user = testResponse.data;
@@ -65,10 +70,114 @@ const FallbackLoginForm = () => {
         setDebugInfo(prev => prev + `\nΑποτυχία σύνδεσης με test-login: ${testErr.message}`);
       }
       
+      // Try the test-login endpoint with /api prefix
+      try {
+        console.log("Trying test-login endpoint with /api prefix");
+        const apiTestResponse = await axios.post(`${baseUrl}/api/test-login`, loginData);
+        console.log("API test login successful:", apiTestResponse.data);
+        
+        const user = apiTestResponse.data;
+        setDebugInfo(prev => prev + `\nΕπιτυχής σύνδεση με api/test-login! Ρόλος: ${user.role}`);
+        
+        // Store user data
+        localStorage.setItem("userRole", user.role);
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userName", user.name);
+        
+        // Navigate based on role
+        if (user.role === 'admin') navigate('/admin');
+        else if (user.role === 'area_manager') navigate('/area-manager');
+        else if (user.role === 'coffee_specialist') navigate('/coffee-specialist');
+        else navigate('/');
+        
+        return;
+      } catch (apiTestErr) {
+        console.log("API test login failed:", apiTestErr.message);
+        setDebugInfo(prev => prev + `\nΑποτυχία σύνδεσης με api/test-login: ${apiTestErr.message}`);
+      }
+      
+      // Try the test-login endpoint with /api prefix
+      try {
+        console.log("Trying test-login endpoint with /api prefix");
+        const apiTestResponse = await axios.post(`${baseUrl}/api/test-login`, loginData);
+        console.log("API test login successful:", apiTestResponse.data);
+        
+        const user = apiTestResponse.data;
+        setDebugInfo(prev => prev + `\nΕπιτυχής σύνδεση με api/test-login! Ρόλος: ${user.role}`);
+        
+        // Store user data
+        localStorage.setItem("userRole", user.role);
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userName", user.name);
+        
+        // Navigate based on role
+        if (user.role === 'admin') navigate('/admin');
+        else if (user.role === 'area_manager') navigate('/area-manager');
+        else if (user.role === 'coffee_specialist') navigate('/coffee-specialist');
+        else navigate('/');
+        
+        return;
+      } catch (apiTestErr) {
+        console.log("API test login failed:", apiTestErr.message);
+        setDebugInfo(prev => prev + `\nΑποτυχία σύνδεσης με api/test-login: ${apiTestErr.message}`);
+      }
+      
+      // Try the test-login endpoint with /api prefix
+      try {
+        console.log("Trying test-login endpoint with /api prefix");
+        const apiTestResponse = await axios.post(`${baseUrl}/api/test-login`, loginData);
+        console.log("API test login successful:", apiTestResponse.data);
+        
+        const user = apiTestResponse.data;
+        setDebugInfo(prev => prev + `\nΕπιτυχής σύνδεση με api/test-login! Ρόλος: ${user.role}`);
+        
+        // Store user data
+        localStorage.setItem("userRole", user.role);
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userName", user.name);
+        
+        // Navigate based on role
+        if (user.role === 'admin') navigate('/admin');
+        else if (user.role === 'area_manager') navigate('/area-manager');
+        else if (user.role === 'coffee_specialist') navigate('/coffee-specialist');
+        else navigate('/');
+        
+        return;
+      } catch (apiTestErr) {
+        console.log("API test login failed:", apiTestErr.message);
+        setDebugInfo(prev => prev + `\nΑποτυχία σύνδεσης με api/test-login: ${apiTestErr.message}`);
+      }
+      
+      // Try the test-login endpoint with /api prefix
+      try {
+        console.log("Trying test-login endpoint with /api prefix");
+        const apiTestResponse = await axios.post(`${baseUrl}/api/test-login`, loginData);
+        console.log("API test login successful:", apiTestResponse.data);
+        
+        const user = apiTestResponse.data;
+        setDebugInfo(prev => prev + `\nΕπιτυχής σύνδεση με api/test-login! Ρόλος: ${user.role}`);
+        
+        // Store user data
+        localStorage.setItem("userRole", user.role);
+        localStorage.setItem("userId", user.id);
+        localStorage.setItem("userName", user.name);
+        
+        // Navigate based on role
+        if (user.role === 'admin') navigate('/admin');
+        else if (user.role === 'area_manager') navigate('/area-manager');
+        else if (user.role === 'coffee_specialist') navigate('/coffee-specialist');
+        else navigate('/');
+        
+        return;
+      } catch (apiTestErr) {
+        console.log("API test login failed:", apiTestErr.message);
+        setDebugInfo(prev => prev + `\nΑποτυχία σύνδεσης με api/test-login: ${apiTestErr.message}`);
+      }
+      
       // Try the direct-login endpoint
       try {
         console.log("Trying direct-login endpoint");
-        const directResponse = await axios.post(`${apiUrl}/auth/direct-login`, loginData);
+        const directResponse = await axios.post(`${baseUrl}/api/auth/direct-login`, loginData);
         console.log("Direct login successful:", directResponse.data);
         
         const user = directResponse.data;
