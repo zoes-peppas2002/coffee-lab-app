@@ -41,11 +41,10 @@ async function initDb() {
           continue;
         }
         
-        // Skip commands with email UNIQUE constraint in PostgreSQL environment
-        if (process.env.NODE_ENV === 'production' && 
-            (command.includes('UNIQUE') || command.includes('email'))) {
-          console.log('EMERGENCY FIX: Skipping email constraint command in PostgreSQL:', command);
-          continue;
+        // We no longer skip email UNIQUE constraint in PostgreSQL environment
+        // Instead, we properly convert it to PostgreSQL syntax
+        if (process.env.NODE_ENV === 'production' && command.includes('UNIQUE') && command.includes('email')) {
+          console.log('Converting email UNIQUE constraint for PostgreSQL...');
         }
         
         // Προσαρμογή του SQL για PostgreSQL αν είμαστε σε περιβάλλον παραγωγής
